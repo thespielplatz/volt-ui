@@ -62,14 +62,14 @@ class WalletTransactions extends StatelessWidget {
       amountColor = const Color(0xFFFDF4E9);
     } else if (type == 'receive') {
       icon = const Icon(Icons.south_east, color: Colors.green);
-      amountColor = Colors.green;
+      amountColor = Colors.lightGreen;
     } else {
       icon = const Icon(Icons.more_horiz, color: Colors.grey);
       amountColor = const Color(0xFFFDF4E9);
     }
 
     return ListTile(
-      leading: icon,
+      leading: _createIcon(icon),
       title: Text(title, style: const TextStyle(color: Color(0xFFFEF3EB))),
       subtitle: Text(date, style: const TextStyle(color: Color(0xFFAEC2D9))),
       trailing: Text(
@@ -77,8 +77,20 @@ class WalletTransactions extends StatelessWidget {
         style: TextStyle(
           color: amountColor,
           fontWeight: FontWeight.bold,
+          fontSize: 14,
         ),
       ),
+    );
+  }
+
+  _createIcon(Icon icon) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: const BoxDecoration(
+        color: Color(0xFF081428),
+        shape: BoxShape.circle,
+      ),
+      child: icon,
     );
   }
 }
