@@ -19,7 +19,7 @@ class CreateWallet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Enter your lndhub connection link:',
+            'Enter your lndhub connection link',
             style: TextStyle(
               color: Color(0xFFFDF4E9),
               fontSize: 18,

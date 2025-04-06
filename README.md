@@ -10,6 +10,7 @@ Built with a focus on simplicity and flexibility, it connects directly to an exi
 ## Backlog
 
 - Connect to lndhub api
+- e2e tests
 - Wallet | show balance
 - Wallet | recieve
 - Wallet | recieve

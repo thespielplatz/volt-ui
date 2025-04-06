@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:volt_ui/pages/wallet/create_wallet.dart';
-import 'package:volt_ui/pages/wallet/wallet_home.dart';
+import 'package:volt_ui/pages/wallet/create/create_wallet.dart';
+import 'package:volt_ui/pages/wallet/wallt/wallet_main.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HomePage extends StatefulWidget {
@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F1B34),
       body: isConfigured
-          ? const WalletHome()
+          ? const WalletMain()
           : CreateWallet(
               controller: _configController,
               onSetup: _setupWallet,
