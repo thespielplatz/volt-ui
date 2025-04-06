@@ -47,12 +47,18 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F1B34),
       body: isConfigured
-          ? const WalletMain()
+          ? WalletMain(
+              onDelete: _deleteWallet,
+            )
           : CreateWallet(
               controller: _configController,
               onSetup: _setupWallet,
             ),
     );
+  }
+
+  _deleteWalletConfig() async {
+    await _secureStorage.delete(key: _configKey);
   }
 
   Future<String?> _getWalletConfig() async {
@@ -61,5 +67,12 @@ class _HomePageState extends State<HomePage> {
 
   _setWalletConfig(String walletConfig) async {
     await _secureStorage.write(key: _configKey, value: walletConfig);
+  }
+
+  _deleteWallet() async {
+    await _deleteWalletConfig();
+    setState(() {
+      isConfigured = false;
+    });
   }
 }

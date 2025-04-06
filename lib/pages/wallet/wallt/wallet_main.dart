@@ -5,7 +5,9 @@ import 'package:volt_ui/ui/vui_button.dart';
 import 'wallet_transactions.dart';
 
 class WalletMain extends StatelessWidget {
-  const WalletMain({super.key});
+  final VoidCallback onDelete;
+
+  const WalletMain({super.key, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,10 @@ class WalletMain extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const WalletOverview(balanceSats: 123456), // replace with real value
+          WalletOverview(
+            balanceSats: 123456,
+            onDelete: onDelete,
+          ), // replace with real value
           const SizedBox(height: 20),
           _buildActionButtons(),
           const SizedBox(height: 20),
