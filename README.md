@@ -19,6 +19,7 @@ Built with a focus on simplicity and flexibility, it connects directly to an exi
 - Piggy Bank Mode
   - LNAddress autodiscovery
 - LNUrlAuth only Wallet
+  - Check from BlueWallet App | it does it without connecting to a backend
 
 ## Dev Notes
 
