@@ -11,12 +11,14 @@ Built with a focus on simplicity and flexibility, it connects directly to an exi
 
 - Connect to lndhub api
 - e2e tests
-- Wallet | show balance
-- Wallet | recieve
-- Wallet | recieve
-- LNUrlAuth only Wallet
+- Wallet | show balance, recieve, send
+- LNURL's & LNAddress
+- foss.tsp.tools/volt-ui Description and readme's (loaded from github)
+- Release
 - LnBits API
-- LNAddress autodiscovery
+- Piggy Bank Mode
+  - LNAddress autodiscovery
+- LNUrlAuth only Wallet
 
 ## Dev Notes
 
