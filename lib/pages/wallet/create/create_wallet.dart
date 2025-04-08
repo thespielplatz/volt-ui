@@ -1,7 +1,15 @@
-// lib/create_wallet.dart
 import 'package:flutter/material.dart';
+import 'package:volt_ui/pages/wallet/create/lib/evaluate_config.dart';
+import 'package:volt_ui/ui/vui_button.dart';
 
-class CreateWallet extends StatelessWidget {
+enum ConfigStatus {
+  initial,
+  evaluating,
+  valid,
+  invalid,
+}
+
+class CreateWallet extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSetup;
 
@@ -12,14 +20,105 @@ class CreateWallet extends StatelessWidget {
   });
 
   @override
+  State<CreateWallet> createState() => _CreateWalletState();
+}
+
+class _CreateWalletState extends State<CreateWallet> {
+  ConfigStatus _status = ConfigStatus.initial;
+  String _statusMessage = 'Paste your config';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onConfigChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onConfigChanged);
+    super.dispose();
+  }
+
+  void _onConfigChanged() {
+    final config = widget.controller.text.trim();
+    if (config.isEmpty) {
+      setState(() {
+        _status = ConfigStatus.initial;
+        _statusMessage = 'Paste your config';
+      });
+      return;
+    }
+
+    setState(() {
+      _status = ConfigStatus.evaluating;
+      _statusMessage = 'Evaluating config...';
+    });
+
+    evaluateConfig(config).then((result) {
+      setState(() {
+        _status = ConfigStatus.valid;
+        _statusMessage = result.message ?? 'OK';
+      });
+    }).onError((error, stackTrace) {
+      setState(() {
+        _status = ConfigStatus.invalid;
+        _statusMessage = error.toString();
+      });
+    });
+  }
+
+  Widget _buildStatusIndicator() {
+    Color color;
+    Widget? icon;
+
+    switch (_status) {
+      case ConfigStatus.initial:
+        color = Colors.grey;
+        icon = const Icon(Icons.circle, size: 12, color: Colors.grey);
+        break;
+      case ConfigStatus.evaluating:
+        color = Colors.blue;
+        icon = const SizedBox(
+          width: 12,
+          height: 12,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        );
+        break;
+      case ConfigStatus.valid:
+        color = Colors.green;
+        icon = const Icon(Icons.circle, size: 12, color: Colors.green);
+        break;
+      case ConfigStatus.invalid:
+        color = Colors.red;
+        icon = const Icon(Icons.circle, size: 12, color: Colors.red);
+        break;
+    }
+
+    return Row(
+      children: [
+        icon,
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            'Status: $_statusMessage',
+            style: TextStyle(color: color),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isButtonEnabled = _status == ConfigStatus.valid;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Enter your lndhub connection link',
+            'Enter your lndhub sconnection link',
             style: TextStyle(
               color: Color(0xFFFDF4E9),
               fontSize: 18,
@@ -28,7 +127,7 @@ class CreateWallet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: controller,
+            controller: widget.controller,
             maxLines: 6,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
@@ -41,13 +140,13 @@ class CreateWallet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: onSetup,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.yellow,
-              foregroundColor: Colors.black,
-            ),
-            child: const Text('Setup'),
+          _buildStatusIndicator(),
+          const SizedBox(height: 12),
+          VUIButton(
+            icon: Icons.check,
+            isEnabled: isButtonEnabled,
+            onPressed: widget.onSetup,
+            label: 'Import',
           ),
           const SizedBox(height: 20),
           const Text(
