@@ -1,19 +1,11 @@
 import 'dart:convert';
 import 'dart:core';
 import 'package:http/http.dart' as http;
+import 'package:volt_ui/models/wallets/lnd_hub_wallet.dart';
+import 'package:volt_ui/models/wallets/wallet.dart';
+import 'package:nanoid/nanoid.dart';
 
-enum ConfigType {
-  lndHub,
-}
-
-class ConfigEvaluationResult {
-  final ConfigType? configType;
-  final String? message;
-
-  ConfigEvaluationResult({this.configType, this.message});
-}
-
-Future<ConfigEvaluationResult> evaluateConfig(String config) async {
+Future<Wallet?> evaluateConfig(String config) async {
   final uriPattern = RegExp(r'^lndhub://([^:]+):([^@]+)@(.+)$');
 
   final match = uriPattern.firstMatch(config.trim());
@@ -36,10 +28,13 @@ Future<ConfigEvaluationResult> evaluateConfig(String config) async {
       url: url,
     );
 
-    return ConfigEvaluationResult(
-      configType: ConfigType.lndHub,
-      message: 'Connection successful',
-    );
+    final id = nanoid(10);
+    return LndHubWallet(
+        id: id,
+        label: "LndHub",
+        url: url,
+        username: username,
+        password: password);
   }
 
   throw Exception(

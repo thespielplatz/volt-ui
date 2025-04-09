@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/create/lib/evaluate_config.dart';
+import 'package:volt_ui/services/storage_provide.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 enum ConfigStatus {
@@ -10,9 +13,9 @@ enum ConfigStatus {
 }
 
 class CreateWallet extends StatefulWidget {
-  final void Function(String) onFinished;
+  final void Function() onFinished;
 
-  CreateWallet({
+  const CreateWallet({
     super.key,
     required this.onFinished,
   });
@@ -24,6 +27,7 @@ class CreateWallet extends StatefulWidget {
 class _CreateWalletState extends State<CreateWallet> {
   ConfigStatus _status = ConfigStatus.initial;
   String _statusMessage = 'Paste your config';
+  Wallet? validWallet;
   late final TextEditingController _controller;
 
   @override
@@ -55,10 +59,13 @@ class _CreateWalletState extends State<CreateWallet> {
       _statusMessage = 'Evaluating config...';
     });
 
-    evaluateConfig(config).then((result) {
+    evaluateConfig(config).then((wallet) {
       setState(() {
         _status = ConfigStatus.valid;
-        _statusMessage = result.message ?? 'OK';
+        if (wallet != null) {
+          validWallet = wallet;
+        }
+        _statusMessage = 'OK';
       });
     }).onError((error, stackTrace) {
       setState(() {
@@ -160,7 +167,10 @@ class _CreateWalletState extends State<CreateWallet> {
   }
 
   _onFinished() {
-    final configText = _controller.text.trim();
-    widget.onFinished(configText);
+    if (validWallet != null) {
+      final storage = Provider.of<StorageProvider>(context);
+      storage.addWallet(validWallet!);
+    }
+    widget.onFinished();
   }
 }

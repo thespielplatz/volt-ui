@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:volt_ui/layout/the_header.dart';
 import 'package:volt_ui/pages/home.dart';
+import 'package:volt_ui/services/storage_provide.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(create: (_) => StorageProvider()),
+      ],
+      child: const VoltUIApp(),
+    ),
+  );
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class VoltUIApp extends StatelessWidget {
+  const VoltUIApp({super.key});
 
   @override
   Widget build(BuildContext context) {

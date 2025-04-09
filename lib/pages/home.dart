@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:volt_ui/pages/wallet/create/create_wallet.dart';
 import 'package:volt_ui/pages/wallet/wallt/wallet_main.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:volt_ui/services/storage_provide.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,33 +12,36 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _secureStorage = const FlutterSecureStorage();
-  static const _configKey = 'wallet_config';
-
   bool isConfigured = false;
 
   @override
   void initState() {
     super.initState();
-    _checkIfConfigured();
+    _checkWallets();
   }
 
-  Future<void> _checkIfConfigured() async {
-    var config = await _getWalletConfig();
-    if (config != null && config.isNotEmpty) {
+  Future<void> _checkWallets() async {
+    final storage = Provider.of<StorageProvider>(context, listen: false);
+    if (storage.hasWallets) {
       setState(() {
         isConfigured = true;
       });
     }
   }
 
-  _setupWalletFinished(configText) async {
-    if (configText.isNotEmpty) {
-      await _setWalletConfig(configText);
-      setState(() {
-        isConfigured = true;
-      });
+  Future<void> _setupWalletFinished() async {
+    _checkWallets();
+  }
+
+  Future<void> _deleteWallets() async {
+    final storage = Provider.of<StorageProvider>(context, listen: false);
+    for (var w in List.from(storage.wallets)) {
+      await storage.removeWallet(w.id);
     }
+
+    setState(() {
+      isConfigured = false;
+    });
   }
 
   @override
@@ -46,30 +50,11 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: const Color(0xFF0F1B34),
       body: isConfigured
           ? WalletMain(
-              onDelete: _deleteWallet,
+              onDelete: _deleteWallets,
             )
           : CreateWallet(
               onFinished: _setupWalletFinished,
             ),
     );
-  }
-
-  _deleteWalletConfig() async {
-    await _secureStorage.delete(key: _configKey);
-  }
-
-  Future<String?> _getWalletConfig() async {
-    return await _secureStorage.read(key: _configKey);
-  }
-
-  _setWalletConfig(String walletConfig) async {
-    await _secureStorage.write(key: _configKey, value: walletConfig);
-  }
-
-  _deleteWallet() async {
-    await _deleteWalletConfig();
-    setState(() {
-      isConfigured = false;
-    });
   }
 }
