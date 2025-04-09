@@ -13,7 +13,7 @@ enum ConfigStatus {
 }
 
 class CreateWallet extends StatefulWidget {
-  final void Function() onFinished;
+  final void Function(Wallet) onFinished;
 
   const CreateWallet({
     super.key,
@@ -167,10 +167,6 @@ class _CreateWalletState extends State<CreateWallet> {
   }
 
   _onFinished() {
-    if (validWallet != null) {
-      final storage = Provider.of<StorageProvider>(context, listen: false);
-      storage.addWallet(validWallet!);
-    }
-    widget.onFinished();
+    widget.onFinished(validWallet!);
   }
 }

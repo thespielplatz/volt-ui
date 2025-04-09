@@ -1,14 +1,25 @@
 // lib/wallet_home.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/wallt/wallet_overview.dart';
+import 'package:volt_ui/pages/wallet/wallt/wallet_transactions.dart';
+import 'package:volt_ui/services/storage_provide.dart';
 import 'package:volt_ui/ui/vui_button.dart';
-import 'wallet_transactions.dart';
 
-class WalletMain extends StatelessWidget {
-  final VoidCallback onDelete;
+class WalletMain extends StatefulWidget {
+  final Wallet wallet;
 
-  const WalletMain({super.key, required this.onDelete});
+  const WalletMain({
+    super.key,
+    required this.wallet,
+  });
 
+  @override
+  State<WalletMain> createState() => _CreateWalletMain();
+}
+
+class _CreateWalletMain extends State<WalletMain> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -17,9 +28,9 @@ class WalletMain extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           WalletOverview(
-            balanceSats: 123456,
-            onDelete: onDelete,
-          ), // replace with real value
+            balanceSats: 123456, // Replace with real balance if available
+            onDelete: _onDelete,
+          ),
           const SizedBox(height: 20),
           _buildActionButtons(),
           const SizedBox(height: 20),
@@ -38,5 +49,10 @@ class WalletMain extends StatelessWidget {
         VUIButton(icon: Icons.qr_code_scanner, label: 'Scan', onPressed: () {}),
       ],
     );
+  }
+
+  _onDelete() async {
+    final storage = Provider.of<StorageProvider>(context, listen: false);
+    await storage.removeWallet(widget.wallet.id);
   }
 }
