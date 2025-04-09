@@ -22,8 +22,8 @@ class TheHeader extends StatelessWidget implements PreferredSizeWidget {
               onFinished: (Wallet wallet) async {
                 final storage =
                     Provider.of<StorageProvider>(context, listen: false);
+                Navigator.of(context).pop();
                 await storage.addWallet(wallet);
-                Navigator.of(context).pop(); // close the fullscreen dialog
               },
             ),
           ),
