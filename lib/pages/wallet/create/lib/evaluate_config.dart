@@ -31,15 +31,11 @@ Future<ConfigEvaluationResult> evaluateConfig(String config) async {
       throw Exception('lndhub has invalid URL in config');
     }
 
-    final success = await validateLndHubCredentials(
+    await validateLndHubCredentials(
       username: username,
       password: password,
       url: url,
     );
-
-    if (!success) {
-      throw Exception('Auth failed at $url');
-    }
 
     return ConfigEvaluationResult(
       configType: ConfigType.lndHub,
@@ -51,38 +47,33 @@ Future<ConfigEvaluationResult> evaluateConfig(String config) async {
       'Invalid config format. Expected: lndhub://<user>:<pass>@<url>');
 }
 
-Future<bool> validateLndHubCredentials({
+Future<void> validateLndHubCredentials({
   required String username,
   required String password,
   required String url,
 }) async {
   print('Testing LNDHub credentials: $username:xxx@$url');
-  final apiUrl = Uri.tryParse('https://$url');
+  final apiUrl = Uri.tryParse(url);
   if (apiUrl == null || !apiUrl.hasAbsolutePath) {
     throw Exception('Invalid URL in config');
   }
 
   final authUrl = Uri.parse('${apiUrl.origin}/auth');
 
-  try {
-    final response = await http.post(
-      authUrl,
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: {
-        'login': username,
-        'password': password,
-      },
-    );
+  final response = await http.post(
+    authUrl,
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: {
+      'login': username,
+      'password': password,
+    },
+  );
 
-    if (response.statusCode == 200) {
-      print('✅ Auth response: ${response.body}');
-      return true;
-    } else {
-      print('❌ Auth failed: ${response.body}');
-      return false;
-    }
-  } catch (e) {
-    print('❌ Error during auth: $e');
-    return false;
+  if (response.statusCode == 200) {
+    return;
   }
+  if (response.body.toLowerCase().contains('not found')) {
+    throw Exception('User not found');
+  }
+  throw Exception('❌ Auth failed: ${response.body}');
 }
