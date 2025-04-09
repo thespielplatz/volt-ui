@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
-import 'package:volt_ui/pages/wallet/create/create_wallet.dart';
+import 'package:volt_ui/pages/create/create_wallet.dart';
 import 'package:volt_ui/services/storage_provide.dart';
 
 class TheHeader extends StatelessWidget implements PreferredSizeWidget {

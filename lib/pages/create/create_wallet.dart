@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
-import 'package:volt_ui/pages/wallet/create/lib/evaluate_config.dart';
+import 'package:volt_ui/pages/create/lib/evaluate_config.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 enum ConfigStatus {
