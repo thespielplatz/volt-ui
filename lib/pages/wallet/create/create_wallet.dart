@@ -168,7 +168,7 @@ class _CreateWalletState extends State<CreateWallet> {
 
   _onFinished() {
     if (validWallet != null) {
-      final storage = Provider.of<StorageProvider>(context);
+      final storage = Provider.of<StorageProvider>(context, listen: false);
       storage.addWallet(validWallet!);
     }
     widget.onFinished();

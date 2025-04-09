@@ -8,7 +8,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        Provider(create: (_) => StorageProvider()),
+        ChangeNotifierProvider(create: (_) => StorageProvider()),
       ],
       child: const VoltUIApp(),
     ),

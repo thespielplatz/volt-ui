@@ -37,8 +37,7 @@ Future<Wallet?> evaluateConfig(String config) async {
         password: password);
   }
 
-  throw Exception(
-      'Invalid config format. Expected: lndhub://<user>:<pass>@<url>');
+  throw Exception('Invalid config format.');
 }
 
 Future<void> validateLndHubCredentials({
