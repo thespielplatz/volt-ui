@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
@@ -21,6 +22,7 @@ class WalletMain extends StatefulWidget {
 
 class _WalletMainState extends State<WalletMain> {
   int? _balanceSats;
+  List<LndHubTransaction> _transactions = [];
   bool _isLoading = true;
   String? _error;
 
@@ -39,6 +41,9 @@ class _WalletMainState extends State<WalletMain> {
     try {
       final repo = WalletRepository(widget.wallet);
       final balance = await repo.getBalance();
+      final transactions = await repo.getTransactions();
+      _transactions.clear();
+      _transactions.addAll(transactions);
 
       setState(() {
         _balanceSats = balance;
@@ -77,7 +82,7 @@ class _WalletMainState extends State<WalletMain> {
           const SizedBox(height: 20),
           _buildActionButtons(),
           const SizedBox(height: 20),
-          const WalletTransactions(),
+          WalletTransactions(transactions: _transactions),
         ],
       ),
     );
