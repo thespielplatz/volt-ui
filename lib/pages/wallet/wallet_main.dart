@@ -27,10 +27,10 @@ class _WalletMainState extends State<WalletMain> {
   @override
   void initState() {
     super.initState();
-    _loadBalance();
+    _refreshWallet();
   }
 
-  Future<void> _loadBalance() async {
+  Future<void> _refreshWallet() async {
     setState(() {
       _isLoading = true;
       _error = null;
@@ -65,6 +65,7 @@ class _WalletMainState extends State<WalletMain> {
                 balanceSats: _balanceSats ?? 0,
                 isLoading: _isLoading,
                 onDelete: _onDelete,
+                onRefresh: _refreshWallet,
               )),
           if (_error != null) ...[
             const SizedBox(height: 8),
