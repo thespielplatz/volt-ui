@@ -1,9 +1,9 @@
-// lib/wallet_home.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/wallt/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallt/wallet_transactions.dart';
+import 'package:volt_ui/repository/wallet_repository.dart';
 import 'package:volt_ui/services/storage_provide.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
@@ -16,10 +16,42 @@ class WalletMain extends StatefulWidget {
   });
 
   @override
-  State<WalletMain> createState() => _CreateWalletMain();
+  State<WalletMain> createState() => _WalletMainState();
 }
 
-class _CreateWalletMain extends State<WalletMain> {
+class _WalletMainState extends State<WalletMain> {
+  int? _balanceSats;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBalance();
+  }
+
+  Future<void> _loadBalance() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final repo = WalletRepository(widget.wallet);
+      final balance = await repo.getBalance();
+
+      setState(() {
+        _balanceSats = balance;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -28,9 +60,17 @@ class _CreateWalletMain extends State<WalletMain> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           WalletOverview(
-            balanceSats: 123456, // Replace with real balance if available
+            balanceSats: _balanceSats ?? 0,
+            isLoading: _isLoading,
             onDelete: _onDelete,
           ),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _error!,
+              style: const TextStyle(color: Colors.redAccent),
+            ),
+          ],
           const SizedBox(height: 20),
           _buildActionButtons(),
           const SizedBox(height: 20),
@@ -51,7 +91,7 @@ class _CreateWalletMain extends State<WalletMain> {
     );
   }
 
-  _onDelete() async {
+  Future<void> _onDelete() async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -72,7 +112,7 @@ class _CreateWalletMain extends State<WalletMain> {
       ),
     );
 
-    if (confirm == true) {
+    if (confirm == true && context.mounted) {
       final storage = Provider.of<StorageProvider>(context, listen: false);
       await storage.removeWallet(widget.wallet.id);
     }

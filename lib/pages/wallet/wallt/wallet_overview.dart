@@ -1,14 +1,15 @@
-// lib/wallet_overview.dart
 import 'package:flutter/material.dart';
 
 class WalletOverview extends StatelessWidget {
   final int balanceSats;
+  final bool isLoading;
   final VoidCallback onDelete;
 
   const WalletOverview({
     super.key,
     required this.balanceSats,
     required this.onDelete,
+    this.isLoading = false,
   });
 
   @override
@@ -29,14 +30,20 @@ class WalletOverview extends StatelessWidget {
               style: TextStyle(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 8),
-            Text(
-              '$balanceSats sats',
-              style: const TextStyle(
-                color: Color(0xFFFDF4E9),
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(
+                    '$balanceSats sats',
+                    style: const TextStyle(
+                      color: Color(0xFFFDF4E9),
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ],
         ),
       ),
