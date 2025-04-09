@@ -15,7 +15,6 @@ class _HomePageState extends State<HomePage> {
   static const _configKey = 'wallet_config';
 
   bool isConfigured = false;
-  final TextEditingController _configController = TextEditingController();
 
   @override
   void initState() {
@@ -32,8 +31,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _setupWallet() async {
-    final configText = _configController.text.trim();
+  _setupWalletFinished(configText) async {
     if (configText.isNotEmpty) {
       await _setWalletConfig(configText);
       setState(() {
@@ -51,8 +49,7 @@ class _HomePageState extends State<HomePage> {
               onDelete: _deleteWallet,
             )
           : CreateWallet(
-              controller: _configController,
-              onSetup: _setupWallet,
+              onFinished: _setupWalletFinished,
             ),
     );
   }

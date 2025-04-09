@@ -10,13 +10,11 @@ enum ConfigStatus {
 }
 
 class CreateWallet extends StatefulWidget {
-  final TextEditingController controller;
-  final VoidCallback onSetup;
+  final void Function(String) onFinished;
 
-  const CreateWallet({
+  CreateWallet({
     super.key,
-    required this.controller,
-    required this.onSetup,
+    required this.onFinished,
   });
 
   @override
@@ -26,21 +24,24 @@ class CreateWallet extends StatefulWidget {
 class _CreateWalletState extends State<CreateWallet> {
   ConfigStatus _status = ConfigStatus.initial;
   String _statusMessage = 'Paste your config';
+  late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(_onConfigChanged);
+    _controller = TextEditingController();
+    _controller.addListener(_onConfigChanged);
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_onConfigChanged);
+    _controller.removeListener(_onConfigChanged);
+    _controller.dispose();
     super.dispose();
   }
 
   void _onConfigChanged() {
-    final config = widget.controller.text.trim();
+    final config = _controller.text.trim();
     if (config.isEmpty) {
       setState(() {
         _status = ConfigStatus.initial;
@@ -127,7 +128,7 @@ class _CreateWalletState extends State<CreateWallet> {
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: widget.controller,
+            controller: _controller,
             maxLines: 6,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
@@ -145,7 +146,7 @@ class _CreateWalletState extends State<CreateWallet> {
           VUIButton(
             icon: Icons.check,
             isEnabled: isButtonEnabled,
-            onPressed: widget.onSetup,
+            onPressed: _onFinished,
             label: 'Import',
           ),
           const SizedBox(height: 20),
@@ -156,5 +157,10 @@ class _CreateWalletState extends State<CreateWallet> {
         ],
       ),
     );
+  }
+
+  _onFinished() {
+    final configText = _controller.text.trim();
+    widget.onFinished(configText);
   }
 }
