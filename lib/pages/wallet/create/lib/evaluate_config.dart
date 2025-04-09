@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:core';
 import 'package:http/http.dart' as http;
 
@@ -18,9 +19,7 @@ Future<ConfigEvaluationResult> evaluateConfig(String config) async {
   final match = uriPattern.firstMatch(config.trim());
 
   if (match != null) {
-    // ignore: unused_local_variable
     final username = match.group(1) ?? '';
-    // ignore: unused_local_variable
     final password = match.group(2) ?? '';
     final url = match.group(3) ?? '';
 
@@ -52,21 +51,19 @@ Future<void> validateLndHubCredentials({
   required String password,
   required String url,
 }) async {
-  print('Testing LNDHub credentials: $username:xxx@$url');
   final apiUrl = Uri.tryParse(url);
   if (apiUrl == null || !apiUrl.hasAbsolutePath) {
     throw Exception('Invalid URL in config');
   }
 
-  final authUrl = Uri.parse('${apiUrl.origin}/auth');
-
+  final authUrl = Uri.parse('${apiUrl}auth');
   final response = await http.post(
     authUrl,
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: {
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
       'login': username,
       'password': password,
-    },
+    }),
   );
 
   if (response.statusCode == 200) {
