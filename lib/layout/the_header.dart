@@ -1,10 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'package:volt_ui/models/wallets/wallet.dart';
+import 'package:volt_ui/pages/wallet/create/create_wallet.dart';
+import 'package:volt_ui/services/storage_provide.dart';
 
 class TheHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
   const TheHeader({super.key, required this.title});
+
+  void _openCreateWallet(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => Scaffold(
+          backgroundColor: const Color(0xFF0F1B34),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+            child: CreateWallet(
+              onFinished: (Wallet wallet) async {
+                final storage =
+                    Provider.of<StorageProvider>(context, listen: false);
+                await storage.addWallet(wallet);
+                Navigator.of(context).pop(); // close the fullscreen dialog
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +53,12 @@ class TheHeader extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
+      actions: [
+        IconButton(
+          onPressed: () => _openCreateWallet(context),
+          icon: const Icon(Icons.add, color: Color(0xFFFDF4E9)),
+        ),
+      ],
       iconTheme: const IconThemeData(color: Color(0xFFFDF4E9)),
     );
   }

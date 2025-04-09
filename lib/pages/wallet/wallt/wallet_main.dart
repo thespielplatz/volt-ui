@@ -59,11 +59,13 @@ class _WalletMainState extends State<WalletMain> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          WalletOverview(
-            balanceSats: _balanceSats ?? 0,
-            isLoading: _isLoading,
-            onDelete: _onDelete,
-          ),
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              child: WalletOverview(
+                balanceSats: _balanceSats ?? 0,
+                isLoading: _isLoading,
+                onDelete: _onDelete,
+              )),
           if (_error != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -113,8 +115,11 @@ class _WalletMainState extends State<WalletMain> {
     );
 
     if (confirm == true && context.mounted) {
-      final storage = Provider.of<StorageProvider>(context, listen: false);
-      await storage.removeWallet(widget.wallet.id);
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        final storage = Provider.of<StorageProvider>(context, listen: false);
+        await storage.removeWallet(widget.wallet.id);
+      }
     }
   }
 }

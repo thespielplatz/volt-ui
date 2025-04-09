@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:volt_ui/models/wallets/wallet.dart';
-import 'package:volt_ui/pages/wallet/create/create_wallet.dart';
+import 'package:volt_ui/pages/no_wallets.dart';
 import 'package:volt_ui/pages/wallet/wallt/wallet_main.dart';
 import 'package:volt_ui/services/storage_provide.dart';
 
@@ -14,6 +13,7 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
   late final PageController _pageController;
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -35,39 +35,44 @@ class _RootPageState extends State<RootPage> {
         builder: (context, storage, _) {
           final wallets = storage.wallets;
 
-          final pages = [
-            ...wallets.map((wallet) => WalletMain(wallet: wallet)),
-            _buildCreateWalletScreen(context),
-          ];
+          if (wallets.isEmpty) {
+            return const NoWallets();
+          }
 
-          return PageView(
-            controller: _pageController,
-            children: pages,
+          final canSwipeLeft = _currentPage > 0;
+          final canSwipeRight = _currentPage < wallets.length - 1;
+
+          return Stack(
+            children: [
+              PageView.builder(
+                controller: _pageController,
+                itemCount: wallets.length,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  return WalletMain(wallet: wallets[index]);
+                },
+              ),
+              if (canSwipeLeft)
+                const Positioned(
+                  left: 8,
+                  top: 56,
+                  child: Icon(Icons.arrow_back_ios,
+                      color: Colors.white38, size: 20),
+                ),
+              if (canSwipeRight)
+                const Positioned(
+                  right: 8,
+                  top: 56,
+                  child: Icon(Icons.arrow_forward_ios,
+                      color: Colors.white38, size: 20),
+                ),
+            ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildCreateWalletScreen(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: CreateWallet(
-          onFinished: (Wallet wallet) async {
-            final storage =
-                Provider.of<StorageProvider>(context, listen: false);
-            await storage.addWallet(wallet);
-
-            // Jump to the new wallet page
-            final walletCount = storage.wallets.length;
-            _pageController.animateToPage(
-              walletCount - 1, // index of the last wallet page
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-            );
-          },
-        ),
       ),
     );
   }
