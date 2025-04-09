@@ -52,7 +52,29 @@ class _CreateWalletMain extends State<WalletMain> {
   }
 
   _onDelete() async {
-    final storage = Provider.of<StorageProvider>(context, listen: false);
-    await storage.removeWallet(widget.wallet.id);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Wallet'),
+        content: const Text(
+            'Are you sure you want to delete this wallet? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final storage = Provider.of<StorageProvider>(context, listen: false);
+      await storage.removeWallet(widget.wallet.id);
+    }
   }
 }
