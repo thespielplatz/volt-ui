@@ -36,7 +36,7 @@ class _RootPageState extends State<RootPage> {
           final wallets = storage.wallets;
 
           final pages = [
-            ...wallets.map((wallet) => WalletMain(wallet: wallet)).toList(),
+            ...wallets.map((wallet) => WalletMain(wallet: wallet)),
             _buildCreateWalletScreen(context),
           ];
 
