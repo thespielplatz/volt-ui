@@ -22,7 +22,7 @@ class WalletMain extends StatefulWidget {
 
 class _WalletMainState extends State<WalletMain> {
   int? _balanceSats;
-  List<LndHubTransaction> _transactions = [];
+  final List<LndHubTransaction> _transactions = [];
   bool _isLoading = true;
   String? _error;
 

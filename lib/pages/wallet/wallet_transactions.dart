@@ -4,7 +4,7 @@ import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 class WalletTransactions extends StatelessWidget {
   final List<LndHubTransaction> transactions;
 
-  WalletTransactions({super.key, required this.transactions});
+  const WalletTransactions({super.key, required this.transactions});
 
   @override
   Widget build(BuildContext context) {
