@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
+import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
@@ -93,7 +95,12 @@ class _WalletMainState extends State<WalletMain> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         VUIButton(icon: Icons.send, label: 'Send', onPressed: () {}),
-        VUIButton(icon: Icons.download, label: 'Receive', onPressed: () {}),
+        VUIButton(
+            icon: Icons.download,
+            label: 'Receive',
+            onPressed: () {
+              openCreateInvoice(context);
+            }),
         VUIButton(icon: Icons.qr_code_scanner, label: 'Scan', onPressed: () {}),
       ],
     );
@@ -128,4 +135,17 @@ class _WalletMainState extends State<WalletMain> {
       }
     }
   }
+}
+
+void openCreateInvoice(BuildContext context) {
+  openFullscreen(
+      context: context,
+      title: 'Receive',
+      body: const CreateInvoice(onCreate: onCreate));
+}
+
+void onCreate(int sats, String description) {
+  // Handle the creation of the invoice here
+  // For example, you can show a dialog with the invoice details
+  print('Invoice created: $sats sats, description: $description');
 }
