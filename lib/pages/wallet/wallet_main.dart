@@ -23,6 +23,7 @@ class WalletMain extends StatefulWidget {
 }
 
 class _WalletMainState extends State<WalletMain> {
+  late final WalletRepository _repo;
   int? _balanceSats;
   final List<LndHubTransaction> _transactions = [];
   bool _isLoading = true;
@@ -31,6 +32,7 @@ class _WalletMainState extends State<WalletMain> {
   @override
   void initState() {
     super.initState();
+    _repo = WalletRepository(widget.wallet);
     _refreshWallet();
   }
 
@@ -41,9 +43,8 @@ class _WalletMainState extends State<WalletMain> {
     });
 
     try {
-      final repo = WalletRepository(widget.wallet);
-      final balance = await repo.getBalance();
-      final transactions = await repo.getTransactions();
+      final balance = await _repo.getBalance();
+      final transactions = await _repo.getTransactions();
       _transactions.clear();
       _transactions.addAll(transactions);
 
@@ -135,17 +136,23 @@ class _WalletMainState extends State<WalletMain> {
       }
     }
   }
-}
 
-void openCreateInvoice(BuildContext context) {
-  openFullscreen(
-      context: context,
-      title: 'Receive',
-      body: const CreateInvoice(onCreate: onCreate));
-}
+  void openCreateInvoice(BuildContext context) {
+    openFullscreen(
+        context: context,
+        title: 'Receive',
+        body: CreateInvoice(onSuccess: _onCreateInvoiceSuccess));
+  }
 
-void onCreate(int sats, String description) {
-  // Handle the creation of the invoice here
-  // For example, you can show a dialog with the invoice details
-  print('Invoice created: $sats sats, description: $description');
+  void _onCreateInvoiceSuccess(int sats, String description) async {
+    var invoice = _repo.createInvoice(
+      amountSat: sats,
+      memo: description,
+    );
+
+    await _refreshWallet();
+    if (context.mounted) {
+      Navigator.of(context).pop(); // Close fullscreen dialog
+    }
+  }
 }
