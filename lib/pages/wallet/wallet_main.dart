@@ -97,14 +97,14 @@ class _WalletMainState extends State<WalletMain> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        VUIButton(icon: Icons.send, label: 'Send', onPressed: () {}),
+        /* VUIButton(icon: Icons.send, label: 'Send', onPressed: () {}), */
         VUIButton(
             icon: Icons.download,
             label: 'Receive',
             onPressed: () {
               openCreateInvoice(context);
             }),
-        VUIButton(icon: Icons.qr_code_scanner, label: 'Scan', onPressed: () {}),
+        /* VUIButton(icon: Icons.qr_code_scanner, label: 'Scan', onPressed: () {}), */
       ],
     );
   }
@@ -140,26 +140,41 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   void openCreateInvoice(BuildContext context) {
-    openFullscreen(
+    return openFullscreen(
         context: context,
         title: 'Receive',
         body: CreateInvoice(onSuccess: _onCreateInvoiceSuccess));
   }
 
   void _onCreateInvoiceSuccess(int sats, String description) async {
-    var invoice = _repo.createInvoice(
+    var invoice = await _repo.createInvoice(
       amountSat: sats,
       memo: description,
     );
 
     await _refreshWallet();
-    if (context.mounted) {
-      Navigator.of(context).pop(); // Close fullscreen dialog
+    LndHubTransaction? transaction =
+        _repo.getTransactionByPaymentRequest(invoice);
+
+    if (transaction != null) {
+      _openTransaction(transaction, replace: true);
+    } else {
+      // Handle error: transaction not found
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Created Invoice not found'),
+          backgroundColor: Color(0xFF8B0000),
+        ),
+      );
+      if (context.mounted) {
+        Navigator.of(context).pop(); // Close fullscreen dialog
+      }
     }
   }
 
-  void _openTransaction(LndHubTransaction transaction) {
+  void _openTransaction(LndHubTransaction transaction, {bool replace = false}) {
     openFullscreen(
+        replace: replace,
         context: context,
         title: 'Lightning Transaction',
         body: TransactionDetails(transaction: transaction));

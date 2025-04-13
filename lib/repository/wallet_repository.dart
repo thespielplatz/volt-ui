@@ -7,6 +7,7 @@ import 'package:volt_ui/models/wallets/wallet.dart';
 
 class WalletRepository {
   final Wallet wallet;
+  List<LndHubTransaction> allTransactions = [];
 
   LndHubApi? _api;
 
@@ -33,7 +34,7 @@ class WalletRepository {
     if (_api != null) {
       final transactions = await _api!.getTransactions();
       final invoices = await _api!.getUserInvoices();
-      final allTransactions = [...transactions, ...invoices];
+      allTransactions = [...transactions, ...invoices];
       allTransactions.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       return allTransactions;
     }
@@ -68,5 +69,11 @@ class WalletRepository {
 
     throw UnimplementedError(
         'decodeInvoice not implemented for ${wallet.type}');
+  }
+
+  LndHubTransaction? getTransactionByPaymentRequest(String paymentRequest) {
+    return allTransactions.firstWhere(
+      (transaction) => transaction.paymentRequest == paymentRequest,
+    );
   }
 }
