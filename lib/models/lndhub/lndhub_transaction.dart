@@ -12,6 +12,7 @@ class LndHubTransaction {
   final double fee;
   final int value;
   final DateTime timestamp;
+  final DateTime? expireTime;
   final String? description;
   final String? paymentRequest;
   final bool? isPaid;
@@ -23,7 +24,8 @@ class LndHubTransaction {
     required this.fee,
     required this.value,
     required this.timestamp,
-    required this.isPaid,
+    this.expireTime,
+    this.isPaid,
     this.paymentRequest,
     this.description,
   });
@@ -38,7 +40,6 @@ class LndHubTransaction {
       timestamp:
           DateTime.fromMillisecondsSinceEpoch((json['timestamp'] ?? 0) * 1000),
       description: json['memo'],
-      isPaid: true,
     );
   }
 
@@ -51,6 +52,8 @@ class LndHubTransaction {
       value: json['amt'] ?? 0,
       timestamp:
           DateTime.fromMillisecondsSinceEpoch((json['timestamp'] ?? 0) * 1000),
+      expireTime: DateTime.fromMillisecondsSinceEpoch(
+          (json['expire_time'] ?? 0) * 1000),
       description: json['description'] is List
           ? (json['description'] as List).join(' ')
           : json['description']?.toString() ?? '',
