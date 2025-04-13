@@ -32,20 +32,8 @@ class WalletTransactions extends StatelessWidget {
                 : ListView.builder(
                     itemCount: transactions.length,
                     itemBuilder: (context, index) {
-                      final tx = transactions[index];
-                      final isSend = tx.value < 0;
-                      final isZero = tx.value == 0;
-
                       return _buildTransactionTile(
-                        type: isZero
-                            ? 'pending'
-                            : isSend
-                                ? 'send'
-                                : 'receive',
-                        title: tx.description ?? tx.type,
-                        date: _formatDate(tx.timestamp),
-                        amount: tx.value,
-                      );
+                          transaction: transactions[index]);
                     },
                   ),
           ),
@@ -61,22 +49,28 @@ class WalletTransactions extends StatelessWidget {
   String _twoDigits(int n) => n < 10 ? '0$n' : '$n';
 
   Widget _buildTransactionTile({
-    required String type, // 'send', 'receive', 'pending'
-    required String title,
-    required String date,
-    required int amount,
+    required LndHubTransaction transaction,
   }) {
+    final title = transaction.description ?? transaction.type;
+    final date = _formatDate(transaction.timestamp);
+    final amount = transaction.value;
     Icon icon;
     Color amountColor;
 
-    if (type == 'send') {
+    if (transaction.transactionType == LndHubTransactionType.payment) {
       icon = const Icon(Icons.north_east, color: Colors.red);
       amountColor = const Color(0xFFFDF4E9);
-    } else if (type == 'receive') {
-      icon = const Icon(Icons.south_east, color: Colors.green);
-      amountColor = Colors.lightGreen;
+    } else if (transaction.transactionType ==
+        LndHubTransactionType.userInvoice) {
+      if (transaction.isPaid ?? false) {
+        icon = const Icon(Icons.south_east, color: Colors.green);
+        amountColor = Colors.lightGreen;
+      } else {
+        icon = const Icon(Icons.more_horiz, color: Colors.grey);
+        amountColor = Colors.grey;
+      }
     } else {
-      icon = const Icon(Icons.more_horiz, color: Colors.grey);
+      icon = const Icon(Icons.question_mark, color: Colors.grey);
       amountColor = const Color(0xFFFDF4E9);
     }
 
