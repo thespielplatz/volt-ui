@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
+import 'package:volt_ui/pages/wallet/transaction_details/get_transaction_icon.dart';
+import 'package:volt_ui/pages/wallet/transaction_details/wrap_icon.dart';
 
 class WalletTransactions extends StatelessWidget {
   final List<LndHubTransaction> transactions;
+  final void Function(LndHubTransaction transaction)? onTransactionTap;
 
-  const WalletTransactions({super.key, required this.transactions});
+  const WalletTransactions(
+      {super.key, required this.transactions, required this.onTransactionTap});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,7 @@ class WalletTransactions extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.year}-${_twoDigits(date.month)}-${_twoDigits(date.day)}';
+    return '${date.year}-${_twoDigits(date.month)}-${_twoDigits(date.day)} ${_twoDigits(date.hour)}:${_twoDigits(date.minute)}';
   }
 
   String _twoDigits(int n) => n < 10 ? '0$n' : '$n';
@@ -54,28 +58,25 @@ class WalletTransactions extends StatelessWidget {
     final title = transaction.description ?? transaction.type;
     final date = _formatDate(transaction.timestamp);
     final amount = transaction.value;
-    Icon icon;
+    Icon icon = getTransactionIcon(transaction);
     Color amountColor;
 
     if (transaction.transactionType == LndHubTransactionType.payment) {
-      icon = const Icon(Icons.north_east, color: Colors.red);
       amountColor = const Color(0xFFFDF4E9);
     } else if (transaction.transactionType ==
         LndHubTransactionType.userInvoice) {
       if (transaction.isPaid ?? false) {
-        icon = const Icon(Icons.south_east, color: Colors.green);
         amountColor = Colors.lightGreen;
       } else {
-        icon = const Icon(Icons.more_horiz, color: Colors.grey);
         amountColor = Colors.grey;
       }
     } else {
-      icon = const Icon(Icons.question_mark, color: Colors.grey);
       amountColor = const Color(0xFFFDF4E9);
     }
 
     return ListTile(
-      leading: _createIcon(icon),
+      onTap: () => onTransactionTap?.call(transaction),
+      leading: wrapIcon(icon),
       title: Text(title,
           style: const TextStyle(color: Color(0xFFFEF3EB), fontSize: 14)),
       subtitle: Text(date, style: const TextStyle(color: Color(0xFFAEC2D9))),
@@ -87,17 +88,6 @@ class WalletTransactions extends StatelessWidget {
           fontSize: 14,
         ),
       ),
-    );
-  }
-
-  Widget _createIcon(Icon icon) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: const BoxDecoration(
-        color: Color(0xFF081428),
-        shape: BoxShape.circle,
-      ),
-      child: icon,
     );
   }
 }

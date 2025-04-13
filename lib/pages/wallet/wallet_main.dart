@@ -4,6 +4,7 @@ import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
+import 'package:volt_ui/pages/wallet/transaction_details/transaction_details.dart';
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
@@ -85,7 +86,8 @@ class _WalletMainState extends State<WalletMain> {
           const SizedBox(height: 20),
           _buildActionButtons(),
           const SizedBox(height: 20),
-          WalletTransactions(transactions: _transactions),
+          WalletTransactions(
+              transactions: _transactions, onTransactionTap: _openTransaction),
         ],
       ),
     );
@@ -154,5 +156,12 @@ class _WalletMainState extends State<WalletMain> {
     if (context.mounted) {
       Navigator.of(context).pop(); // Close fullscreen dialog
     }
+  }
+
+  void _openTransaction(LndHubTransaction transaction) {
+    openFullscreen(
+        context: context,
+        title: 'Lightning Transaction',
+        body: TransactionDetails(transaction: transaction));
   }
 }

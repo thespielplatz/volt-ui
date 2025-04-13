@@ -13,6 +13,7 @@ class LndHubTransaction {
   final int value;
   final DateTime timestamp;
   final String? description;
+  final String? paymentRequest;
   final bool? isPaid;
 
   LndHubTransaction({
@@ -23,6 +24,7 @@ class LndHubTransaction {
     required this.value,
     required this.timestamp,
     required this.isPaid,
+    this.paymentRequest,
     this.description,
   });
 
@@ -53,6 +55,7 @@ class LndHubTransaction {
           ? (json['description'] as List).join(' ')
           : json['description']?.toString() ?? '',
       isPaid: json['ispaid'] ?? false,
+      paymentRequest: json['payment_request'],
     );
   }
 
