@@ -124,7 +124,7 @@ class _CreateWalletState extends State<CreateWallet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Enter your lndhub sconnection link',
+            'Enter your lndhub connection link',
             style: TextStyle(
               color: Color(0xFFFDF4E9),
               fontSize: 18,
@@ -157,6 +157,11 @@ class _CreateWalletState extends State<CreateWallet> {
           const SizedBox(height: 20),
           const Text(
             'This configuration connects your app to your lightning account with the lndhub protocol. This could be a lndhub.io or lnbits instance.',
+            style: TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'lndhub://<username>:<password>@<host>:<port>',
             style: TextStyle(color: Colors.white70),
           ),
         ],
