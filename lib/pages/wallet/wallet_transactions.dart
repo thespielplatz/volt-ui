@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
+import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_transaction_icon.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/wrap_icon.dart';
 
@@ -57,7 +58,6 @@ class WalletTransactions extends StatelessWidget {
   }) {
     final title = transaction.description ?? transaction.type;
     final date = _formatDate(transaction.timestamp);
-    final amount = transaction.value;
     Icon icon = getTransactionIcon(transaction);
     Color amountColor;
 
@@ -81,7 +81,7 @@ class WalletTransactions extends StatelessWidget {
           style: const TextStyle(color: Color(0xFFFEF3EB), fontSize: 14)),
       subtitle: Text(date, style: const TextStyle(color: Color(0xFFAEC2D9))),
       trailing: Text(
-        amount >= 0 ? '+$amount sats' : '$amount sats',
+        getFormattedSatsFromTransaction(transaction),
         style: TextStyle(
           color: amountColor,
           fontWeight: FontWeight.bold,

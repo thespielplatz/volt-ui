@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:volt_ui/layout/sats_input_formatter.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
+import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_transaction_icon.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/wrap_icon.dart';
 import 'package:volt_ui/ui/vui_button.dart';
@@ -81,7 +82,7 @@ class TransactionDetails extends StatelessWidget {
       iconWithBackground,
       const SizedBox(height: 25),
       Text(
-        '${transaction.transactionType == LndHubTransactionType.payment ? '- ' : ''}${SatsInputFormatter.format(transaction.value.toString())} sats',
+        getFormattedSatsFromTransaction(transaction),
         style: const TextStyle(
             color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 
 class WalletOverview extends StatelessWidget {
   final int balanceSats;
@@ -33,7 +34,7 @@ class WalletOverview extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '$balanceSats sats',
+              getFormattedSats(balanceSats, addPlusSign: false),
               style: const TextStyle(
                 color: Color(0xFFFDF4E9),
                 fontSize: 26,
