@@ -28,10 +28,11 @@ MaterialPageRoute<dynamic> _createFullscreenWidget({
       backgroundColor: const Color(0xFF0F1B34),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromARGB(255, 53, 59, 69),
+        backgroundColor: const Color(0xFF081428),
         title: Text(
           title,
-          style: const TextStyle(color: Colors.white),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         iconTheme: const IconThemeData(color: Color(0xFFFDF4E9)),
         actions: [
