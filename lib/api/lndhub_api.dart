@@ -131,6 +131,7 @@ class LndHubApi {
     );
 
     if (res.statusCode == 200) {
+      print('payInvoice invoice: ${res.body}');
       final json = jsonDecode(res.body);
       final payInvoiceDto = LndHubPaymentInvoiceDto.fromJson(json);
       if (payInvoiceDto.paymentError.isNotEmpty) {

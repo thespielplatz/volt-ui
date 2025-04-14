@@ -10,7 +10,7 @@ class LndHubPaymentInvoiceDto {
   final int fee;
   final double value;
   final int timestamp;
-  final String memo;
+  final String? memo;
 
   LndHubPaymentInvoiceDto({
     required this.paymentError,

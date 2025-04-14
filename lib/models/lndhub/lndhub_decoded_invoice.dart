@@ -5,7 +5,7 @@ class LndHubDecodedInvoice {
   final int timestamp;
   final DateTime timestampAsDateTime;
   final int expiry;
-  final String description;
+  final String? description;
   final String fallbackAddr;
   final int cltvExpiry;
 
