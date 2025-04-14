@@ -37,6 +37,17 @@ class TransactionDetails extends StatelessWidget {
     final qrSize = MediaQuery.of(context).size.width - 58;
 
     return [
+      Text(
+        getFormattedSatsFromTransaction(transaction),
+        style: const TextStyle(
+            color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 16),
+      Text(
+        transaction.description ?? '',
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+      ),
+      const SizedBox(height: 16),
       Container(
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
@@ -83,6 +94,11 @@ class TransactionDetails extends StatelessWidget {
         getFormattedSatsFromTransaction(transaction),
         style: const TextStyle(
             color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 16),
+      Text(
+        transaction.description ?? '',
+        style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
       const SizedBox(height: 16),
       Text(
