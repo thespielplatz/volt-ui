@@ -56,7 +56,7 @@ class WalletTransactions extends StatelessWidget {
   Widget _buildTransactionTile({
     required LndHubTransaction transaction,
   }) {
-    final title = transaction.description ?? transaction.type;
+    final title = _getTitleFromTransaction(transaction);
     final date = _formatDate(transaction.timestamp);
     Icon icon = getTransactionIcon(transaction);
     Color amountColor;
@@ -89,5 +89,20 @@ class WalletTransactions extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getTitleFromTransaction(
+    LndHubTransaction transaction,
+  ) {
+    if (transaction.description != null &&
+        transaction.description!.isNotEmpty) {
+      return transaction.description!;
+    }
+
+    if (transaction.transactionType == LndHubTransactionType.payment) {
+      return 'Payment';
+    } else {
+      return 'Invoice';
+    }
   }
 }
