@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:volt_ui/layout/sats_input_formatter.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_transaction_icon.dart';
@@ -11,8 +10,7 @@ import 'package:volt_ui/ui/vui_button.dart';
 class TransactionDetails extends StatelessWidget {
   final LndHubTransaction transaction;
 
-  const TransactionDetails({Key? key, required this.transaction})
-      : super(key: key);
+  const TransactionDetails({super.key, required this.transaction});
 
   @override
   Widget build(BuildContext context) {

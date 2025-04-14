@@ -159,15 +159,16 @@ class _WalletMainState extends State<WalletMain> {
     if (transaction != null) {
       _openTransaction(transaction, replace: true);
     } else {
-      // Handle error: transaction not found
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Created Invoice not found'),
-          backgroundColor: Color(0xFF8B0000),
-        ),
-      );
       if (context.mounted) {
-        Navigator.of(context).pop(); // Close fullscreen dialog
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).pop();
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Created Invoice not found'),
+            backgroundColor: Color(0xFF8B0000),
+          ),
+        );
       }
     }
   }
