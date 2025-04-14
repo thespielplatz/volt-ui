@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:volt_ui/layout/open_fullscreen.dart';
+import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
+import 'package:volt_ui/pages/wallet/pay_invoice/pay_invoice.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/transaction_details.dart';
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
@@ -97,7 +99,12 @@ class _WalletMainState extends State<WalletMain> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        /* VUIButton(icon: Icons.send, label: 'Send', onPressed: () {}), */
+        VUIButton(
+            icon: Icons.send,
+            label: 'Send',
+            onPressed: () {
+              openPayInvoice(context);
+            }),
         VUIButton(
             icon: Icons.download,
             label: 'Receive',
@@ -139,6 +146,17 @@ class _WalletMainState extends State<WalletMain> {
     }
   }
 
+  void openPayInvoice(BuildContext context) {
+    return openFullscreen(
+        context: context,
+        title: 'Pay Invoice',
+        body: PayInvoice(onSuccess: _onPayInvoiceSuccess, repository: _repo));
+  }
+
+  void _onPayInvoiceSuccess() async {
+    await _refreshWallet();
+  }
+
   void openCreateInvoice(BuildContext context) {
     return openFullscreen(
         context: context,
@@ -163,12 +181,7 @@ class _WalletMainState extends State<WalletMain> {
         // ignore: use_build_context_synchronously
         Navigator.of(context).pop();
         // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Created Invoice not found'),
-            backgroundColor: Color(0xFF8B0000),
-          ),
-        );
+        showError(context: context, text: 'Created Invoice not found');
       }
     }
   }

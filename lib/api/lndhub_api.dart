@@ -1,5 +1,7 @@
+import 'dart:core';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:volt_ui/models/lndhub/lndhub_decoded_invoice.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 
 class LndHubApi {
@@ -82,9 +84,7 @@ class LndHubApi {
 
     final res = await http.get(
       Uri.parse('$url/balance'),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-      },
+      headers: _getHeaders(),
     );
 
     if (res.statusCode == 200) {
@@ -104,10 +104,7 @@ class LndHubApi {
 
     final res = await http.post(
       Uri.parse('$url/addinvoice'),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-        'Content-Type': 'application/json',
-      },
+      headers: _getHeaders(),
       body: jsonEncode({
         'amt': amountSat,
         if (memo != null) 'memo': memo,
@@ -128,10 +125,7 @@ class LndHubApi {
 
     final res = await http.post(
       Uri.parse('$url/payinvoice'),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-        'Content-Type': 'application/json',
-      },
+      headers: _getHeaders(),
       body: jsonEncode({'invoice': bolt11}),
     );
 
@@ -143,20 +137,17 @@ class LndHubApi {
   }
 
   /// Decode a Lightning invoice
-  Future<Map<String, dynamic>> decodeInvoice(String bolt11) async {
+  Future<LndHubDecodedInvoice> decodeInvoice(String bolt11) async {
     await authenticate();
 
-    final res = await http.post(
-      Uri.parse('$url/decodeinvoice'),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'invoice': bolt11}),
+    final res = await http.get(
+      Uri.parse('$url/decodeinvoice?invoice=${Uri.encodeComponent(bolt11)}'),
+      headers: _getHeaders(),
     );
 
     if (res.statusCode == 200) {
-      return jsonDecode(res.body);
+      final json = jsonDecode(res.body);
+      return LndHubDecodedInvoice.fromJson(json);
     } else {
       throw Exception('Invoice decode failed: ${res.body}');
     }
@@ -167,9 +158,7 @@ class LndHubApi {
 
     final res = await http.get(
       Uri.parse('$url/gettxs'),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-      },
+      headers: _getHeaders(),
     );
 
     if (res.statusCode == 200) {
@@ -192,9 +181,7 @@ class LndHubApi {
 
     final res = await http.get(
       Uri.parse('$url/getuserinvoices'),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-      },
+      headers: _getHeaders(),
     );
 
     if (res.statusCode == 200) {
@@ -210,5 +197,12 @@ class LndHubApi {
     } else {
       throw Exception('Fetching user invoices failed: ${res.body}');
     }
+  }
+
+  _getHeaders() {
+    return {
+      'Authorization': 'Bearer $_accessToken',
+      'Content-Type': 'application/json',
+    };
   }
 }
