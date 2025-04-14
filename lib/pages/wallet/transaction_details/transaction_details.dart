@@ -95,7 +95,14 @@ class TransactionDetails extends StatelessWidget {
         style: const TextStyle(
             color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 12),
+      if (transaction.transactionType == LndHubTransactionType.payment) ...[
+        Text(
+          'Fee: ${getFormattedSats(transaction.fee.toInt(), addPlusSign: false)}',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        const SizedBox(height: 16),
+      ],
       Text(
         transaction.description ?? '',
         style: const TextStyle(color: Colors.white, fontSize: 16),
