@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/models/lndhub/lndhub_decoded_invoice.dart';
+import 'package:volt_ui/models/lndhub/lndhub_payment_invoice_dto.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
 import 'package:volt_ui/services/lightning/validate_bolt11.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 class PayInvoice extends StatefulWidget {
-  final void Function() onSuccess;
+  final void Function(LndHubPaymentInvoiceDto dto) onSuccess;
   final WalletRepository repository;
 
   const PayInvoice(
@@ -20,6 +21,7 @@ class PayInvoice extends StatefulWidget {
 class _PayInvoiceState extends State<PayInvoice> {
   final _paymentRequestController = TextEditingController();
   LndHubDecodedInvoice? _invoice;
+  String? _paymentRequest;
 
   @override
   void initState() {
@@ -33,8 +35,8 @@ class _PayInvoiceState extends State<PayInvoice> {
     super.dispose();
   }
 
-  void _handleSuccess() {
-    widget.onSuccess();
+  void _handleSuccess(LndHubPaymentInvoiceDto dto) {
+    widget.onSuccess(dto);
   }
 
   void _validateInput() async {
@@ -50,6 +52,7 @@ class _PayInvoiceState extends State<PayInvoice> {
           await widget.repository.decodeInvoice(paymentRequest);
       setState(() {
         _invoice = invoice;
+        _paymentRequest = paymentRequest;
       });
     } catch (e) {
       showError(context: context, text: 'Error decoding invoice: $e');
@@ -61,15 +64,15 @@ class _PayInvoiceState extends State<PayInvoice> {
   }
 
   void _payInvoice() async {
-    final paymentRequest = _paymentRequestController.text;
-    if (paymentRequest.isEmpty) {
-      showError(context: context, text: 'Please enter a payment request');
-      return;
-    }
-
     try {
-      await widget.repository.payInvoice(paymentRequest);
-      _handleSuccess();
+      await widget.repository.checkRoute(_paymentRequest!);
+    } catch (e) {
+      showError(context: context, text: 'Error paying invoice: $e');
+    }
+    try {
+      LndHubPaymentInvoiceDto dto =
+          await widget.repository.payInvoice(_paymentRequest!);
+      _handleSuccess(dto);
     } catch (e) {
       showError(context: context, text: 'Error paying invoice: $e');
     }
@@ -88,8 +91,10 @@ class _PayInvoiceState extends State<PayInvoice> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              getFormattedSats(_invoice?.numSatoshis.toInt() ?? 0,
-                  addPlusSign: false),
+              _invoice == null
+                  ? ''
+                  : getFormattedSats(_invoice?.numSatoshis.toInt() ?? 0,
+                      addPlusSign: false),
               style: const TextStyle(
                   color: Colors.white,
                   fontSize: 26,

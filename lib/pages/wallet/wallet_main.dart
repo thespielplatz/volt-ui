@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/layout/show_error.dart';
+import 'package:volt_ui/layout/show_success.dart';
+import 'package:volt_ui/models/lndhub/lndhub_payment_invoice_dto.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
@@ -153,8 +155,14 @@ class _WalletMainState extends State<WalletMain> {
         body: PayInvoice(onSuccess: _onPayInvoiceSuccess, repository: _repo));
   }
 
-  void _onPayInvoiceSuccess() async {
+  void _onPayInvoiceSuccess(LndHubPaymentInvoiceDto dto) async {
     await _refreshWallet();
+    // ignore: use_build_context_synchronously
+    Navigator.of(context).pop();
+    showSuccess(
+        context: context,
+        text:
+            'Payment successful: ${dto.value.toInt()} sats with: ${dto.memo}');
   }
 
   void openCreateInvoice(BuildContext context) {
@@ -169,7 +177,6 @@ class _WalletMainState extends State<WalletMain> {
       amountSat: sats,
       memo: description,
     );
-
     await _refreshWallet();
     LndHubTransaction? transaction =
         _repo.getTransactionByPaymentRequest(invoice);

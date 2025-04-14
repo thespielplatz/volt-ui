@@ -1,6 +1,7 @@
 // lib/repository/wallet_repository.dart
 import 'package:volt_ui/api/lndhub_api.dart';
 import 'package:volt_ui/models/lndhub/lndhub_decoded_invoice.dart';
+import 'package:volt_ui/models/lndhub/lndhub_payment_invoice_dto.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/lnd_hub_wallet.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
@@ -54,7 +55,7 @@ class WalletRepository {
         'createInvoice not implemented for ${wallet.type}');
   }
 
-  Future<Map<String, dynamic>> payInvoice(String bolt11) async {
+  Future<LndHubPaymentInvoiceDto> payInvoice(String bolt11) async {
     if (_api != null) {
       return await _api!.payInvoice(bolt11);
     }
@@ -69,6 +70,14 @@ class WalletRepository {
 
     throw UnimplementedError(
         'decodeInvoice not implemented for ${wallet.type}');
+  }
+
+  Future<bool> checkRoute(String bolt11) async {
+    if (_api != null) {
+      return await _api!.checkRoute(bolt11);
+    }
+
+    throw UnimplementedError('checkRoute not implemented for ${wallet.type}');
   }
 
   LndHubTransaction? getTransactionByPaymentRequest(String paymentRequest) {

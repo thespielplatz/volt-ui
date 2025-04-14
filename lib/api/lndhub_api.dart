@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:volt_ui/models/lndhub/lndhub_decoded_invoice.dart';
+import 'package:volt_ui/models/lndhub/lndhub_payment_invoice_dto.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 
 class LndHubApi {
@@ -120,7 +121,7 @@ class LndHubApi {
   }
 
   /// Pay a Lightning invoice
-  Future<Map<String, dynamic>> payInvoice(String bolt11) async {
+  Future<LndHubPaymentInvoiceDto> payInvoice(String bolt11) async {
     await authenticate();
 
     final res = await http.post(
@@ -130,7 +131,13 @@ class LndHubApi {
     );
 
     if (res.statusCode == 200) {
-      return jsonDecode(res.body);
+      final json = jsonDecode(res.body);
+      final payInvoiceDto = LndHubPaymentInvoiceDto.fromJson(json);
+      if (payInvoiceDto.paymentError.isNotEmpty) {
+        throw Exception(
+            'Invoice payment failed: ${payInvoiceDto.paymentError}');
+      }
+      return payInvoiceDto;
     } else {
       throw Exception('Invoice payment failed: ${res.body}');
     }
@@ -150,6 +157,22 @@ class LndHubApi {
       return LndHubDecodedInvoice.fromJson(json);
     } else {
       throw Exception('Invoice decode failed: ${res.body}');
+    }
+  }
+
+  Future<bool> checkRoute(String bolt11) async {
+    await authenticate();
+
+    final res = await http.get(
+      Uri.parse(
+          '$url/checkrouteinvoice?invoice=${Uri.encodeComponent(bolt11)}'),
+      headers: _getHeaders(),
+    );
+
+    if (res.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('checkRoute: ${res.body}');
     }
   }
 
