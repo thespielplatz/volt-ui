@@ -169,14 +169,11 @@ class _WalletMainState extends State<WalletMain> {
     return openFullscreen(
         context: context,
         title: 'Receive',
-        body: CreateInvoice(onSuccess: _onCreateInvoiceSuccess));
+        body: CreateInvoice(
+            onSuccess: _onCreateInvoiceSuccess, repository: _repo));
   }
 
-  void _onCreateInvoiceSuccess(int sats, String description) async {
-    var invoice = await _repo.createInvoice(
-      amountSat: sats,
-      memo: description,
-    );
+  void _onCreateInvoiceSuccess(String invoice) async {
     await _refreshWallet();
     LndHubTransaction? transaction =
         _repo.getTransactionByPaymentRequest(invoice);

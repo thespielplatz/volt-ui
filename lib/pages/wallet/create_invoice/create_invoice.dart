@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:volt_ui/layout/sats_input_formatter.dart';
+import 'package:volt_ui/repository/wallet_repository.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 class CreateInvoice extends StatefulWidget {
-  final void Function(int sats, String description) onSuccess;
+  final void Function(String invoice) onSuccess;
+  final WalletRepository repository;
 
-  const CreateInvoice({super.key, required this.onSuccess});
+  const CreateInvoice(
+      {super.key, required this.onSuccess, required this.repository});
 
   @override
   State<CreateInvoice> createState() => _CreateInvoiceState();
@@ -40,12 +43,14 @@ class _CreateInvoiceState extends State<CreateInvoice> {
     }
   }
 
-  void _handleSuccess() {
+  void _onCreateInvoice() async {
     final sats = _getSats();
     final description = _descController.text.trim();
-    if (sats > 0) {
-      widget.onSuccess(sats, description);
-    }
+    var invoice = await widget.repository.createInvoice(
+      amountSat: sats,
+      memo: description,
+    );
+    widget.onSuccess(invoice);
   }
 
   int _getSats() {
@@ -81,7 +86,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
             VUIButton(
               icon: Icons.bolt,
               label: 'Create Invoice',
-              onPressed: _handleSuccess,
+              onPressed: _onCreateInvoice,
               isEnabled: _isValidAmount,
             ),
           ],
