@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:volt_ui/layout/the_header.dart';
 import 'package:volt_ui/pages/root.dart';
-import 'package:volt_ui/services/storage_provide.dart';
+import 'package:volt_ui/services/storage_provider.dart';
 
 void main() {
   runApp(

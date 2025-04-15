@@ -3,7 +3,7 @@ import 'package:volt_ui/models/wallets/lnd_hub_wallet.dart';
 
 abstract class Wallet {
   final String id;
-  final String label;
+  String label;
 
   Wallet({required this.id, required this.label});
 

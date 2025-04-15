@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 
 class WalletOverview extends StatelessWidget {
@@ -6,12 +7,14 @@ class WalletOverview extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onSettings;
   final VoidCallback onRefresh;
+  final Wallet wallet;
 
   const WalletOverview({
     super.key,
     required this.balanceSats,
     required this.onSettings,
     required this.onRefresh,
+    required this.wallet,
     this.isLoading = false,
   });
 
@@ -28,11 +31,11 @@ class WalletOverview extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Wallet',
+            Text(
+              wallet.label.isEmpty ? 'Wallet' : wallet.label,
               style: TextStyle(color: Colors.white70, fontSize: 16),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 40),
             Text(
               getFormattedSats(balanceSats, addPlusSign: false),
               style: const TextStyle(

@@ -20,6 +20,7 @@ Future<Wallet?> evaluateConfig(String config) async {
     }
 
     final cleanedUrl = Uri.tryParse(url.replaceAll(RegExp(r'\/+$'), ''));
+    final rootDomain = extractRootDomain(cleanedUrl!);
 
     await validateLndHubCredentials(
       username: username,
@@ -30,7 +31,7 @@ Future<Wallet?> evaluateConfig(String config) async {
     final id = nanoid(10);
     return LndHubWallet(
         id: id,
-        label: "LndHub",
+        label: 'LndHub${rootDomain.isNotEmpty ? '@$rootDomain' : ''}',
         url: cleanedUrl.toString(),
         username: username,
         password: password);
@@ -54,4 +55,14 @@ Future<void> validateLndHubCredentials({
     throw Exception('User not found');
   }
   throw Exception('❌ Auth failed: ${response.body}');
+}
+
+String extractRootDomain(Uri url) {
+  final parts = url.host.split('.');
+
+  if (parts.length >= 2) {
+    return '${parts[parts.length - 2]}.${parts[parts.length - 1]}';
+  } else {
+    return url.host; // fallback in case it's something like "localhost"
+  }
 }

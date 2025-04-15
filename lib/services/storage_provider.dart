@@ -41,6 +41,11 @@ class StorageProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> save() async {
+    await _persistWallets();
+    notifyListeners();
+  }
+
   Wallet? getWalletById(String id) {
     for (final w in _wallets) {
       if (w.id == id) return w;

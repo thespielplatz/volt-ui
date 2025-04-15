@@ -78,6 +78,7 @@ class _WalletMainState extends State<WalletMain> {
                 isLoading: _isLoading,
                 onSettings: _openSettings,
                 onRefresh: _refreshWallet,
+                wallet: widget.wallet,
               )),
           if (_error != null) ...[
             const SizedBox(height: 8),

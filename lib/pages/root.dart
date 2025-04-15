@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:volt_ui/pages/no_wallets.dart';
 import 'package:volt_ui/pages/wallet/wallet_main.dart';
-import 'package:volt_ui/services/storage_provide.dart';
+import 'package:volt_ui/services/storage_provider.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});

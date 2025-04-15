@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
-import 'package:volt_ui/services/storage_provide.dart';
+import 'package:volt_ui/services/storage_provider.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 class WalletSettings extends StatefulWidget {
@@ -19,18 +19,13 @@ class _WalletSettingsState extends State<WalletSettings> {
   @override
   void initState() {
     super.initState();
-    _nameController.addListener(_onNameChanged);
+    _nameController.text = widget.wallet.label;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
-  }
-
-  _onNameChanged() {
-    final name = _nameController.text.trim();
-    if (name.isNotEmpty) {}
   }
 
   @override
@@ -50,7 +45,7 @@ class _WalletSettingsState extends State<WalletSettings> {
               controller: _nameController,
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
-                labelText: 'Description',
+                labelText: 'Wallet Name',
                 labelStyle: TextStyle(color: Colors.white70),
                 enabledBorder: whiteBorder,
                 focusedBorder: whiteBorder,
@@ -60,7 +55,7 @@ class _WalletSettingsState extends State<WalletSettings> {
             VUIButton(
               icon: Icons.save,
               label: 'Save',
-              onPressed: () => {},
+              onPressed: _onSaveWallet,
             ),
             const SizedBox(height: 24),
             VUIButton(
@@ -74,6 +69,21 @@ class _WalletSettingsState extends State<WalletSettings> {
         ),
       ),
     );
+  }
+
+  _onSaveWallet() async {
+    final name = _nameController.text.trim();
+    if (context.mounted) {
+      // ignore: use_build_context_synchronously
+      final storage = Provider.of<StorageProvider>(context, listen: false);
+      Wallet? wallet = storage.getWalletById(widget.wallet.id);
+      if (wallet != null) {
+        wallet.label = name;
+        await storage.save();
+      }
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _onDeleteWallet() async {
