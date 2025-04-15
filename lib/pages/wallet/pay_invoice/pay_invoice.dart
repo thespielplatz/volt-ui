@@ -22,6 +22,7 @@ class _PayInvoiceState extends State<PayInvoice> {
   final _paymentRequestController = TextEditingController();
   LndHubDecodedInvoice? _invoice;
   String? _paymentRequest;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _PayInvoiceState extends State<PayInvoice> {
       setState(() {
         _invoice = invoice;
         _paymentRequest = paymentRequest;
+        _isLoading = false;
       });
     } catch (e) {
       showError(context: context, text: 'Error decoding invoice: $e');
@@ -60,14 +62,25 @@ class _PayInvoiceState extends State<PayInvoice> {
         _invoice = null;
       });
       return;
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   void _payInvoice() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       await widget.repository.checkRoute(_paymentRequest!);
     } catch (e) {
       showError(context: context, text: 'Error paying invoice: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      return;
     }
     try {
       LndHubPaymentInvoiceDto dto =
@@ -75,6 +88,10 @@ class _PayInvoiceState extends State<PayInvoice> {
       _handleSuccess(dto);
     } catch (e) {
       showError(context: context, text: 'Error paying invoice: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -122,6 +139,7 @@ class _PayInvoiceState extends State<PayInvoice> {
               label: 'Pay Invoice',
               onPressed: _payInvoice,
               isEnabled: _invoice != null,
+              isLoading: _isLoading,
             ),
           ],
         ),
