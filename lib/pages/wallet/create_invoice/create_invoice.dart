@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:volt_ui/layout/sats_input_formatter.dart';
+import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
@@ -19,6 +20,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
   final _satsController = TextEditingController();
   final _descController = TextEditingController();
   bool _isValidAmount = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -44,13 +46,24 @@ class _CreateInvoiceState extends State<CreateInvoice> {
   }
 
   void _onCreateInvoice() async {
+    setState(() {
+      _isLoading = true;
+    });
     final sats = _getSats();
     final description = _descController.text.trim();
-    var invoice = await widget.repository.createInvoice(
-      amountSat: sats,
-      memo: description,
-    );
-    widget.onSuccess(invoice);
+    try {
+      var invoice = await widget.repository.createInvoice(
+        amountSat: sats,
+        memo: description,
+      );
+      widget.onSuccess(invoice);
+    } catch (error) {
+      showError(context: context, text: 'Error creating invoice: $error');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   int _getSats() {
@@ -88,6 +101,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
               label: 'Create Invoice',
               onPressed: _onCreateInvoice,
               isEnabled: _isValidAmount,
+              isLoading: _isLoading,
             ),
           ],
         ),
