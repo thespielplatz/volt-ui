@@ -153,6 +153,7 @@ class _CreateWalletState extends State<CreateWallet> {
             isEnabled: isButtonEnabled,
             onPressed: _onFinished,
             label: 'Import',
+            isLoading: _status == ConfigStatus.evaluating,
           ),
           const SizedBox(height: 20),
           const Text(
