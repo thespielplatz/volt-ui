@@ -57,6 +57,7 @@ class _PayInvoiceState extends State<PayInvoice> {
         _isLoading = false;
       });
     } catch (e) {
+      // ignore: use_build_context_synchronously
       showError(context: context, text: 'Error decoding invoice: $e');
       setState(() {
         _invoice = null;
@@ -76,6 +77,7 @@ class _PayInvoiceState extends State<PayInvoice> {
     try {
       await widget.repository.checkRoute(_paymentRequest!);
     } catch (e) {
+      // ignore: use_build_context_synchronously
       showError(context: context, text: 'Error paying invoice: $e');
       setState(() {
         _isLoading = false;
@@ -87,6 +89,7 @@ class _PayInvoiceState extends State<PayInvoice> {
           await widget.repository.payInvoice(_paymentRequest!);
       _handleSuccess(dto);
     } catch (e) {
+      // ignore: use_build_context_synchronously
       showError(context: context, text: 'Error paying invoice: $e');
     } finally {
       setState(() {

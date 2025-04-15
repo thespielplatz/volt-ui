@@ -58,6 +58,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
       );
       widget.onSuccess(invoice);
     } catch (error) {
+      // ignore: use_build_context_synchronously
       showError(context: context, text: 'Error creating invoice: $error');
     } finally {
       setState(() {

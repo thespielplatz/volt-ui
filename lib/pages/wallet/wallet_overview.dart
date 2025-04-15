@@ -33,7 +33,7 @@ class WalletOverview extends StatelessWidget {
           children: [
             Text(
               wallet.label.isEmpty ? 'Wallet' : wallet.label,
-              style: TextStyle(color: Colors.white70, fontSize: 16),
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 40),
             Text(

@@ -130,7 +130,7 @@ class _WalletSettingsState extends State<WalletSettings> {
   _createConfigRow(String label, String value) {
     return [
       const SizedBox(height: 24),
-      Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+      Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
       const SizedBox(height: 5),
       Text(value)
     ];

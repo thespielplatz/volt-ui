@@ -141,6 +141,7 @@ class _WalletMainState extends State<WalletMain> {
     // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
     showSuccess(
+        // ignore: use_build_context_synchronously
         context: context,
         text:
             'Payment successful: ${dto.value.toInt()} sats with: ${dto.memo}');
