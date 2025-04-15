@@ -38,6 +38,7 @@ class _WalletSettingsState extends State<WalletSettings> {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 16),
@@ -51,7 +52,15 @@ class _WalletSettingsState extends State<WalletSettings> {
                 focusedBorder: whiteBorder,
               ),
             ),
-            const SizedBox(height: 24),
+            ..._createConfigRow(
+              'Type',
+              widget.wallet.type,
+            ),
+            ..._createConfigRow(
+              'Connected To',
+              widget.wallet.url,
+            ),
+            const SizedBox(height: 35),
             VUIButton(
               icon: Icons.save,
               label: 'Save',
@@ -116,5 +125,14 @@ class _WalletSettingsState extends State<WalletSettings> {
         Navigator.of(context).pop();
       }
     }
+  }
+
+  _createConfigRow(String label, String value) {
+    return [
+      const SizedBox(height: 24),
+      Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+      const SizedBox(height: 5),
+      Text(value)
+    ];
   }
 }

@@ -1,6 +1,6 @@
 import 'dart:core';
 import 'package:volt_ui/api/lndhub_api.dart';
-import 'package:volt_ui/models/wallets/lnd_hub_wallet.dart';
+import 'package:volt_ui/models/wallets/lndhub_wallet.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:nanoid/nanoid.dart';
 

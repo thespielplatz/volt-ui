@@ -6,6 +6,7 @@ class LnBitsWallet extends Wallet {
   LnBitsWallet({
     required super.id,
     required super.label,
+    required super.url,
     required this.adminKey,
   });
 
@@ -23,6 +24,7 @@ class LnBitsWallet extends Wallet {
   factory LnBitsWallet.fromJson(Map<String, dynamic> json) => LnBitsWallet(
         id: json['id'],
         label: json['label'],
+        url: json['url'],
         adminKey: json['adminKey'],
       );
 }

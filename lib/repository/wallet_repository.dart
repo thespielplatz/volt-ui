@@ -3,7 +3,7 @@ import 'package:volt_ui/api/lndhub_api.dart';
 import 'package:volt_ui/models/lndhub/lndhub_decoded_invoice.dart';
 import 'package:volt_ui/models/lndhub/lndhub_payment_invoice_dto.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
-import 'package:volt_ui/models/wallets/lnd_hub_wallet.dart';
+import 'package:volt_ui/models/wallets/lndhub_wallet.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 
 class WalletRepository {

@@ -1,11 +1,16 @@
 import 'package:volt_ui/models/wallets/lnbits_wallet.dart';
-import 'package:volt_ui/models/wallets/lnd_hub_wallet.dart';
+import 'package:volt_ui/models/wallets/lndhub_wallet.dart';
 
 abstract class Wallet {
   final String id;
   String label;
+  final String url;
 
-  Wallet({required this.id, required this.label});
+  Wallet({
+    required this.id,
+    required this.label,
+    required this.url,
+  });
 
   String get type;
 

@@ -1,14 +1,13 @@
 import 'package:volt_ui/models/wallets/wallet.dart';
 
 class LndHubWallet extends Wallet {
-  final String url;
   final String username;
   final String password;
 
   LndHubWallet({
     required super.id,
     required super.label,
-    required this.url,
+    required super.url,
     required this.username,
     required this.password,
   });
