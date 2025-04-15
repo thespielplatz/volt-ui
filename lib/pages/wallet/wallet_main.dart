@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/layout/show_success.dart';
@@ -8,11 +7,11 @@ import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
 import 'package:volt_ui/pages/wallet/pay_invoice/pay_invoice.dart';
+import 'package:volt_ui/pages/wallet/settings/wallet_settings.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/transaction_details.dart';
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
-import 'package:volt_ui/services/storage_provide.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 class WalletMain extends StatefulWidget {
@@ -77,7 +76,7 @@ class _WalletMainState extends State<WalletMain> {
               child: WalletOverview(
                 balanceSats: _balanceSats ?? 0,
                 isLoading: _isLoading,
-                onDelete: _onDelete,
+                onSettings: _openSettings,
                 onRefresh: _refreshWallet,
               )),
           if (_error != null) ...[
@@ -97,17 +96,28 @@ class _WalletMainState extends State<WalletMain> {
     );
   }
 
+  _openSettings() {
+    return openFullscreen(
+        context: context,
+        title: 'Wallet Settings',
+        body: WalletSettings(
+          wallet: widget.wallet,
+        ));
+  }
+
   Widget _buildActionButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         VUIButton(
+            isFullWidth: false,
             icon: Icons.send,
             label: 'Send',
             onPressed: () {
               openPayInvoice(context);
             }),
         VUIButton(
+            isFullWidth: false,
             icon: Icons.download,
             label: 'Receive',
             onPressed: () {
@@ -116,36 +126,6 @@ class _WalletMainState extends State<WalletMain> {
         /* VUIButton(icon: Icons.qr_code_scanner, label: 'Scan', onPressed: () {}), */
       ],
     );
-  }
-
-  Future<void> _onDelete() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Wallet'),
-        content: const Text(
-            'Are you sure you want to delete this wallet? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true && context.mounted) {
-      if (context.mounted) {
-        // ignore: use_build_context_synchronously
-        final storage = Provider.of<StorageProvider>(context, listen: false);
-        await storage.removeWallet(widget.wallet.id);
-      }
-    }
   }
 
   void openPayInvoice(BuildContext context) {

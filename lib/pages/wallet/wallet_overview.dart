@@ -4,13 +4,13 @@ import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart
 class WalletOverview extends StatelessWidget {
   final int balanceSats;
   final bool isLoading;
-  final VoidCallback onDelete;
+  final VoidCallback onSettings;
   final VoidCallback onRefresh;
 
   const WalletOverview({
     super.key,
     required this.balanceSats,
-    required this.onDelete,
+    required this.onSettings,
     required this.onRefresh,
     this.isLoading = false,
   });
@@ -73,7 +73,7 @@ class WalletOverview extends StatelessWidget {
         top: 8,
         right: 8,
         child: GestureDetector(
-          onTap: onDelete,
+          onTap: onSettings,
           child: Container(
             decoration: const BoxDecoration(
               color: Color(0xFF081428),
@@ -81,9 +81,9 @@ class WalletOverview extends StatelessWidget {
             ),
             padding: const EdgeInsets.all(6),
             child: const Icon(
-              Icons.delete,
+              Icons.settings,
               size: 20,
-              color: Colors.redAccent,
+              color: Colors.yellow,
             ),
           ),
         ),

@@ -6,19 +6,24 @@ class VUIButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isEnabled;
   final bool isLoading;
+  final Color accentColor;
+  final Color secondaryColor;
+  final bool isFullWidth;
 
-  const VUIButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-    this.isEnabled = true,
-    this.isLoading = false,
-  });
+  const VUIButton(
+      {super.key,
+      required this.icon,
+      required this.label,
+      required this.onPressed,
+      this.isEnabled = true,
+      this.isLoading = false,
+      this.accentColor = Colors.yellow,
+      this.secondaryColor = Colors.black,
+      this.isFullWidth = true});
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
+    Widget button = OutlinedButton(
       onPressed: (isEnabled && !isLoading) ? onPressed : null,
       style: ButtonStyle(
         minimumSize: WidgetStateProperty.all(const Size(100, 48)),
@@ -28,25 +33,25 @@ class VUIButton extends StatelessWidget {
           if (states.contains(WidgetState.disabled)) {
             return const Color(0x20FFFF00);
           }
-          return Colors.yellow;
+          return accentColor;
         }),
         foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
           return isEnabled ? Colors.black : Colors.white;
         }),
         side: WidgetStateProperty.all(
-          const BorderSide(color: Colors.yellow, width: 2),
+          BorderSide(color: accentColor, width: 2),
         ),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
       ),
       child: isLoading
-          ? const SizedBox(
+          ? SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.yellow),
+                valueColor: AlwaysStoppedAnimation<Color>(accentColor),
               ),
             )
           : Row(
@@ -54,18 +59,27 @@ class VUIButton extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: isEnabled ? Colors.black : const Color(0xFFB0B0B0),
+                  color: isEnabled ? secondaryColor : const Color(0xFFB0B0B0),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   label,
                   style: TextStyle(
-                    color: isEnabled ? Colors.black : const Color(0xFFB0B0B0),
+                    color: isEnabled ? secondaryColor : const Color(0xFFB0B0B0),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
     );
+
+    if (isFullWidth) {
+      button = SizedBox(
+        width: double.infinity,
+        child: button,
+      );
+    }
+
+    return button;
   }
 }
