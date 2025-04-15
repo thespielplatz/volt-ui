@@ -8,6 +8,8 @@ class NoWallets extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
+        child: SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -24,6 +26,6 @@ class NoWallets extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
