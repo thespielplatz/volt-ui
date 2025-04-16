@@ -3,6 +3,7 @@ import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_transaction_icon.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/wrap_icon.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 
 class WalletTransactions extends StatelessWidget {
   final List<LndHubTransaction> transactions;
@@ -17,21 +18,28 @@ class WalletTransactions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Transactions',
-            style: TextStyle(
-              color: Color(0xFFFDF4E9),
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: const Text(
+                'Transactions',
+                style: TextStyle(
+                  color: AppColors.text,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              )),
           const SizedBox(height: 12),
           Expanded(
+              child: Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: AppColors.pageDarkBackground,
+            ),
             child: transactions.isEmpty
                 ? const Center(
                     child: Text(
                       'No transactions found',
-                      style: TextStyle(color: Color(0xFFFDF4E9)),
+                      style: TextStyle(color: AppColors.text),
                     ),
                   )
                 : ListView.builder(
@@ -41,7 +49,7 @@ class WalletTransactions extends StatelessWidget {
                           transaction: transactions[index]);
                     },
                   ),
-          ),
+          )),
         ],
       ),
     );
@@ -71,15 +79,16 @@ class WalletTransactions extends StatelessWidget {
         amountColor = Colors.grey;
       }
     } else {
-      amountColor = const Color(0xFFFDF4E9);
+      amountColor = AppColors.text;
     }
 
     return ListTile(
       onTap: () => onTransactionTap?.call(transaction),
       leading: wrapIcon(icon),
       title: Text(title,
-          style: const TextStyle(color: Color(0xFFFEF3EB), fontSize: 14)),
-      subtitle: Text(date, style: const TextStyle(color: Color(0xFFAEC2D9))),
+          style: const TextStyle(color: AppColors.text, fontSize: 14)),
+      subtitle:
+          Text(date, style: const TextStyle(color: AppColors.textSecondary)),
       trailing: Text(
         getFormattedSatsFromTransaction(transaction),
         style: TextStyle(

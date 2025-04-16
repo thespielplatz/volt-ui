@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/create/lib/evaluate_config.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 enum ConfigStatus {
@@ -135,14 +136,19 @@ class _CreateWalletState extends State<CreateWallet> {
           TextField(
             controller: _controller,
             maxLines: 6,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColors.text),
             decoration: InputDecoration(
               filled: true,
-              fillColor: Colors.white12,
+              fillColor: AppColors.pageDarkBackground,
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               hintText: 'Paste your config here...',
-              hintStyle: const TextStyle(color: Colors.white54),
+              hintStyle: const TextStyle(color: AppColors.textSecondary),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(4),
+                borderSide:
+                    const BorderSide(width: 2, color: AppColors.accentColor),
+              ),
             ),
           ),
           const SizedBox(height: 12),

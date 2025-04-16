@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:volt_ui/pages/no_wallets.dart';
 import 'package:volt_ui/pages/wallet/wallet_main.dart';
 import 'package:volt_ui/services/storage_provider.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -30,7 +31,7 @@ class _RootPageState extends State<RootPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1B34),
+      backgroundColor: AppColors.pageBackground,
       body: Consumer<StorageProvider>(
         builder: (context, storage, _) {
           final wallets = storage.wallets;

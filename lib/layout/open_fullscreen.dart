@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 
 void openFullscreen({
   required BuildContext context,
@@ -25,16 +26,16 @@ MaterialPageRoute<dynamic> _createFullscreenWidget({
   return MaterialPageRoute(
     fullscreenDialog: true,
     builder: (context) => Scaffold(
-      backgroundColor: const Color(0xFF0F1B34),
+      backgroundColor: AppColors.pageBackground,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFF081428),
+        backgroundColor: AppColors.headerBackground,
         title: Text(
           title,
-          style:
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+              color: AppColors.text, fontWeight: FontWeight.bold),
         ),
-        iconTheme: const IconThemeData(color: Color(0xFFFDF4E9)),
+        iconTheme: const IconThemeData(color: AppColors.text),
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
@@ -46,7 +47,7 @@ MaterialPageRoute<dynamic> _createFullscreenWidget({
         ],
       ),
       body: DefaultTextStyle(
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: AppColors.text),
         child: body,
       ),
     ),

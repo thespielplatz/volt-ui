@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 
 class WalletOverview extends StatelessWidget {
   final int balanceSats;
@@ -25,7 +26,7 @@ class WalletOverview extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF14243C),
+          color: AppColors.pageDarkBackground,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -33,13 +34,14 @@ class WalletOverview extends StatelessWidget {
           children: [
             Text(
               wallet.label.isEmpty ? 'Wallet' : wallet.label,
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
+              style:
+                  const TextStyle(color: AppColors.textSecondary, fontSize: 16),
             ),
             const SizedBox(height: 40),
             Text(
               getFormattedSats(balanceSats, addPlusSign: false),
               style: const TextStyle(
-                color: Color(0xFFFDF4E9),
+                color: AppColors.text,
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
               ),
@@ -67,7 +69,7 @@ class WalletOverview extends StatelessWidget {
                 : const Icon(
                     Icons.refresh,
                     size: 20,
-                    color: Colors.yellow,
+                    color: AppColors.accentColor,
                   ),
           ),
         ),
@@ -79,14 +81,14 @@ class WalletOverview extends StatelessWidget {
           onTap: onSettings,
           child: Container(
             decoration: const BoxDecoration(
-              color: Color(0xFF081428),
+              color: Colors.black,
               shape: BoxShape.circle,
             ),
             padding: const EdgeInsets.all(6),
             child: const Icon(
               Icons.settings,
               size: 20,
-              color: Colors.yellow,
+              color: AppColors.accentColor,
             ),
           ),
         ),

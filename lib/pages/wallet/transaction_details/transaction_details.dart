@@ -5,6 +5,7 @@ import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_transaction_icon.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/wrap_icon.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 class TransactionDetails extends StatelessWidget {
@@ -84,7 +85,8 @@ class TransactionDetails extends StatelessWidget {
 
   List<Widget> _createTransaction(BuildContext context) {
     Icon icon = getTransactionIcon(transaction, size: 75);
-    Widget iconWithBackground = wrapIcon(icon, border: 15);
+    Widget iconWithBackground =
+        wrapIcon(icon, border: 15, background: AppColors.pageDarkBackground);
 
     // Placeholder content for paid transactions
     return [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 
 class VUIButton extends StatelessWidget {
   final IconData icon;
@@ -17,7 +18,7 @@ class VUIButton extends StatelessWidget {
       required this.onPressed,
       this.isEnabled = true,
       this.isLoading = false,
-      this.accentColor = Colors.yellow,
+      this.accentColor = AppColors.accentColor,
       this.secondaryColor = Colors.black,
       this.isFullWidth = true});
 

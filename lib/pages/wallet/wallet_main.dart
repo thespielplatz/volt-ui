@@ -67,12 +67,13 @@ class _WalletMainState extends State<WalletMain> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              padding: const EdgeInsets.only(
+                  top: 20, left: 20, right: 20, bottom: 20),
               child: WalletOverview(
                 balanceSats: _balanceSats ?? 0,
                 isLoading: _isLoading,
@@ -87,7 +88,6 @@ class _WalletMainState extends State<WalletMain> {
               style: const TextStyle(color: Colors.redAccent),
             ),
           ],
-          const SizedBox(height: 20),
           _buildActionButtons(),
           const SizedBox(height: 20),
           WalletTransactions(
