@@ -30,11 +30,19 @@ MaterialPageRoute<dynamic> _createFullscreenWidget({
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: AppColors.headerBackground,
-        title: Text(
-          title,
-          style: const TextStyle(
-              color: AppColors.text, fontWeight: FontWeight.bold),
-        ),
+        title: Row(children: [
+          Image.asset(
+            'design/logo/logo_orange.png',
+            width: 35,
+            height: 35,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            title,
+            style: const TextStyle(
+                color: AppColors.text, fontWeight: FontWeight.bold),
+          ),
+        ]),
         iconTheme: const IconThemeData(color: AppColors.text),
         actions: [
           IconButton(

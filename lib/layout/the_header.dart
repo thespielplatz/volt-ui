@@ -15,10 +15,10 @@ class TheHeader extends StatelessWidget implements PreferredSizeWidget {
         children: [
           Image.asset(
             'design/logo/logo_orange.png',
-            width: 40,
-            height: 40,
+            width: 35,
+            height: 35,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Text(
             title,
             style: const TextStyle(
