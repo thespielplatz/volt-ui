@@ -9,4 +9,8 @@ class AppColors {
   static const text = Color(0xFFFDF4E9);
   static const textSecondary = Color.fromARGB(255, 176, 176, 176);
   static const accentColor = Color(0xFFffa820);
+  static var inputFocusedBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(4),
+    borderSide: const BorderSide(width: 2, color: Colors.white),
+  );
 }

@@ -144,11 +144,7 @@ class _CreateWalletState extends State<CreateWallet> {
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               hintText: 'Paste your config here...',
               hintStyle: const TextStyle(color: AppColors.textSecondary),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(4),
-                borderSide:
-                    const BorderSide(width: 2, color: AppColors.accentColor),
-              ),
+              focusedBorder: AppColors.inputFocusedBorder,
             ),
           ),
           const SizedBox(height: 12),

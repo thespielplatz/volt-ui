@@ -5,6 +5,7 @@ import 'package:volt_ui/models/lndhub/lndhub_payment_invoice_dto.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/get_formatted_sats.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
 import 'package:volt_ui/services/lightning/validate_bolt11.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 class PayInvoice extends StatefulWidget {
@@ -100,10 +101,6 @@ class _PayInvoiceState extends State<PayInvoice> {
 
   @override
   Widget build(BuildContext context) {
-    const whiteBorder = OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.white),
-    );
-
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -129,11 +126,12 @@ class _PayInvoiceState extends State<PayInvoice> {
             TextField(
               controller: _paymentRequestController,
               style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Payment Request',
-                labelStyle: TextStyle(color: Colors.white70),
-                enabledBorder: whiteBorder,
-                focusedBorder: whiteBorder,
+                labelStyle: const TextStyle(color: Colors.white70),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                focusedBorder: AppColors.inputFocusedBorder,
               ),
             ),
             const SizedBox(height: 24),

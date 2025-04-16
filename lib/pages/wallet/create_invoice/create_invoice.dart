@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:volt_ui/layout/sats_input_formatter.dart';
 import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
+import 'package:volt_ui/ui/app_colors.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
 class CreateInvoice extends StatefulWidget {
@@ -89,11 +90,12 @@ class _CreateInvoiceState extends State<CreateInvoice> {
             TextField(
               controller: _descController,
               style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Description',
-                labelStyle: TextStyle(color: Colors.white70),
-                enabledBorder: whiteBorder,
-                focusedBorder: whiteBorder,
+                labelStyle: const TextStyle(color: Colors.white70),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                focusedBorder: AppColors.inputFocusedBorder,
               ),
             ),
             const SizedBox(height: 24),
