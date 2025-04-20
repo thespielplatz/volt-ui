@@ -8,6 +8,8 @@ class LndHubWallet extends Wallet {
     required super.id,
     required super.label,
     required super.url,
+    required super.cachedBalanceSats,
+    required super.cachedTransactions,
     required this.username,
     required this.password,
   });
@@ -16,20 +18,28 @@ class LndHubWallet extends Wallet {
   String get type => 'LNDHub';
 
   @override
-  Map<String, dynamic> toJson() => {
-        'type': type,
-        'id': id,
-        'label': label,
-        'url': url,
-        'username': username,
-        'password': password,
-      };
+  Map<String, dynamic> toJson() {
+    final json = super.toJson();
 
-  factory LndHubWallet.fromJson(Map<String, dynamic> json) => LndHubWallet(
-        id: json['id'],
-        label: json['label'],
-        url: json['url'],
-        username: json['username'],
-        password: json['password'],
-      );
+    json.addAll({
+      'username': username,
+      'password': password,
+    });
+
+    return json;
+  }
+
+  factory LndHubWallet.fromJson(Map<String, dynamic> json) {
+    final base = Wallet.parseBaseFields(json);
+
+    return LndHubWallet(
+      id: base.id,
+      label: base.label,
+      url: base.url,
+      cachedBalanceSats: base.cachedBalanceSats,
+      cachedTransactions: base.cachedTransactions,
+      username: json['username'],
+      password: json['password'],
+    );
+  }
 }

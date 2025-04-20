@@ -6,7 +6,7 @@ Icon getTransactionIcon(LndHubTransaction transaction, {double size = 24.0}) {
   if (transaction.transactionType == LndHubTransactionType.payment) {
     icon = Icon(Icons.north_east, color: Colors.red, size: size);
   } else if (transaction.transactionType == LndHubTransactionType.userInvoice) {
-    if (transaction.isPaid ?? false) {
+    if (transaction.isPaid) {
       icon = Icon(Icons.south_east, color: Colors.green, size: size);
     } else {
       icon = Icon(Icons.more_horiz, color: Colors.grey, size: size);

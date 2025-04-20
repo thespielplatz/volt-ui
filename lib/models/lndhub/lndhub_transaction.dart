@@ -1,5 +1,3 @@
-// lib/models/transaction.dart
-
 enum LndHubTransactionType {
   payment,
   userInvoice,
@@ -8,7 +6,6 @@ enum LndHubTransactionType {
 class LndHubTransaction {
   final LndHubTransactionType transactionType;
   final int feeMsat;
-  final String type;
   final double fee;
   final int value;
   final DateTime timestamp;
@@ -21,7 +18,6 @@ class LndHubTransaction {
   LndHubTransaction({
     required this.transactionType,
     required this.feeMsat,
-    required this.type,
     required this.fee,
     required this.value,
     required this.timestamp,
@@ -32,11 +28,22 @@ class LndHubTransaction {
     this.description,
   }) : _isPaid = isPaid;
 
-  get isPaid {
+  bool get isPaid {
     return transactionType == LndHubTransactionType.payment ||
         (transactionType == LndHubTransactionType.userInvoice &&
-            _isPaid != null &&
             _isPaid == true);
+  }
+
+  /// Unified factory method
+  factory LndHubTransaction.fromJson(Map<String, dynamic> json) {
+    switch (json['transactionType']) {
+      case 'payment':
+        return LndHubTransaction.fromPaymentJson(json);
+      case 'userInvoice':
+        return LndHubTransaction.fromUserInvoiceJson(json);
+      default:
+        throw Exception('Unknown transaction type: ${json['transactionType']}');
+    }
   }
 
   factory LndHubTransaction.fromPaymentJson(Map<String, dynamic> json) {
@@ -44,7 +51,6 @@ class LndHubTransaction {
       transactionType: LndHubTransactionType.payment,
       paymentHash: json['payment_hash'],
       feeMsat: json['fee_msat'] ?? 0,
-      type: json['type'] ?? 'unknown',
       fee: (json['fee'] ?? 0).toDouble(),
       value: json['value'] ?? 0,
       timestamp:
@@ -58,13 +64,14 @@ class LndHubTransaction {
       transactionType: LndHubTransactionType.userInvoice,
       paymentHash: json['payment_hash'],
       feeMsat: json['fee_msat'] ?? 0,
-      type: json['type'] ?? 'user_invoice',
       fee: 0,
       value: json['amt'] ?? 0,
       timestamp:
           DateTime.fromMillisecondsSinceEpoch((json['timestamp'] ?? 0) * 1000),
-      expireTime: DateTime.fromMillisecondsSinceEpoch(
-          (json['expire_time'] ?? 0) * 1000),
+      expireTime: json['expire_time'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              (json['expire_time'] ?? 0) * 1000)
+          : null,
       description: json['description'] is List
           ? (json['description'] as List).join(' ')
           : json['description']?.toString() ?? '',
@@ -73,14 +80,19 @@ class LndHubTransaction {
     );
   }
 
+  /// Fully detailed serializer for caching
   Map<String, dynamic> toJson() {
     return {
+      'transactionType': transactionType.name,
       'fee_msat': feeMsat,
-      'type': type,
       'fee': fee,
       'value': value,
       'timestamp': timestamp.millisecondsSinceEpoch ~/ 1000,
-      'memo': description,
+      'expire_time': expireTime?.millisecondsSinceEpoch ?? 0 ~/ 1000,
+      'description': description,
+      'payment_request': paymentRequest,
+      'payment_hash': paymentHash,
+      'ispaid': _isPaid,
     };
   }
 }

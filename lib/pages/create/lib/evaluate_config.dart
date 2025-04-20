@@ -33,6 +33,8 @@ Future<Wallet?> evaluateConfig(String config) async {
         id: id,
         label: 'LndHub${rootDomain.isNotEmpty ? '@$rootDomain' : ''}',
         url: cleanedUrl.toString(),
+        cachedBalanceSats: 0,
+        cachedTransactions: [],
         username: username,
         password: password);
   }

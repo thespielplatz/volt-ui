@@ -7,6 +7,8 @@ class LnBitsWallet extends Wallet {
     required super.id,
     required super.label,
     required super.url,
+    required super.cachedBalanceSats,
+    required super.cachedTransactions,
     required this.adminKey,
   });
 
@@ -14,17 +16,26 @@ class LnBitsWallet extends Wallet {
   String get type => 'LnBits';
 
   @override
-  Map<String, dynamic> toJson() => {
-        'type': type,
-        'id': id,
-        'label': label,
-        'adminKey': adminKey,
-      };
+  Map<String, dynamic> toJson() {
+    final json = super.toJson();
 
-  factory LnBitsWallet.fromJson(Map<String, dynamic> json) => LnBitsWallet(
-        id: json['id'],
-        label: json['label'],
-        url: json['url'],
-        adminKey: json['adminKey'],
-      );
+    json.addAll({
+      'adminKey': adminKey,
+    });
+
+    return json;
+  }
+
+  factory LnBitsWallet.fromJson(Map<String, dynamic> json) {
+    final base = Wallet.parseBaseFields(json);
+
+    return LnBitsWallet(
+      id: base.id,
+      label: base.label,
+      url: base.url,
+      cachedBalanceSats: base.cachedBalanceSats,
+      cachedTransactions: base.cachedTransactions,
+      adminKey: json['adminKey'],
+    );
+  }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/layout/show_success.dart';
@@ -15,6 +16,7 @@ import 'package:volt_ui/pages/wallet/transaction_details/transaction_pending.dar
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
+import 'package:volt_ui/services/storage_provider.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 import 'package:collection/collection.dart';
 
@@ -34,8 +36,6 @@ class WalletMain extends StatefulWidget {
 
 class _WalletMainState extends State<WalletMain> {
   late final WalletRepository _repo;
-  int? _balanceSats;
-  final List<LndHubTransaction> _transactions = [];
   ValueNotifier<LndHubTransaction>? _transactionNotifier;
   bool _isLoading = true;
   String? _error;
@@ -57,9 +57,12 @@ class _WalletMainState extends State<WalletMain> {
       final balance = await _repo.getBalance();
       final transactions = await _repo.getTransactions();
       _updateTransactions(transactions);
+      // ignore: use_build_context_synchronously
+      final storage = Provider.of<StorageProvider>(context, listen: false);
+      await storage.save();
 
       setState(() {
-        _balanceSats = balance;
+        widget.wallet.cachedBalanceSats = balance;
         _isLoading = false;
       });
     } catch (e) {
@@ -81,7 +84,7 @@ class _WalletMainState extends State<WalletMain> {
               padding: const EdgeInsets.only(
                   top: 20, left: 20, right: 20, bottom: 20),
               child: WalletOverview(
-                balanceSats: _balanceSats ?? 0,
+                balanceSats: widget.wallet.cachedBalanceSats,
                 isLoading: _isLoading,
                 onSettings: _openSettings,
                 onRefresh: startAutorefreshWallet,
@@ -101,6 +104,10 @@ class _WalletMainState extends State<WalletMain> {
         ],
       ),
     );
+  }
+
+  List<LndHubTransaction> get _transactions {
+    return widget.wallet.cachedTransactions;
   }
 
   _openSettings() {
@@ -245,8 +252,6 @@ class _WalletMainState extends State<WalletMain> {
     }
 
     // ignore: prefer_conditional_assignment
-    print(
-        '${widget.wallet.label} Starting autorefresh with $autoRefreshInterval');
     _autoRefreshTimer = Timer(
       Duration(milliseconds: autoRefreshInterval),
       () {
@@ -256,7 +261,6 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   void stopAutorefreshWallet() {
-    print('${widget.wallet.label} Stop autorefresh');
     _autoRefreshTimer?.cancel();
     _autoRefreshTimer = null;
   }
