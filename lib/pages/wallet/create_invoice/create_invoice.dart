@@ -75,10 +75,6 @@ class _CreateInvoiceState extends State<CreateInvoice> {
 
   @override
   Widget build(BuildContext context) {
-    const whiteBorder = OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.white),
-    );
-
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
