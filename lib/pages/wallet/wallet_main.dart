@@ -79,23 +79,8 @@ class _WalletMainState extends State<WalletMain> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-              padding: const EdgeInsets.only(
-                  top: 20, left: 20, right: 20, bottom: 20),
-              child: WalletOverview(
-                balanceSats: widget.wallet.cachedBalanceSats,
-                isLoading: _isLoading,
-                onSettings: _openSettings,
-                onRefresh: _walletPoller.start,
-                wallet: widget.wallet,
-              )),
-          if (_error != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              _error!,
-              style: const TextStyle(color: Colors.redAccent),
-            ),
-          ],
+          _buildOverview(),
+          if (_error != null) _buildError(),
           _buildActionButtons(),
           const SizedBox(height: 20),
           WalletTransactions(
@@ -109,6 +94,19 @@ class _WalletMainState extends State<WalletMain> {
     return widget.wallet.cachedTransactions;
   }
 
+  _buildOverview() {
+    return Padding(
+        padding:
+            const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+        child: WalletOverview(
+          balanceSats: widget.wallet.cachedBalanceSats,
+          isLoading: _isLoading,
+          onSettings: _openSettings,
+          onRefresh: _walletPoller.start,
+          wallet: widget.wallet,
+        ));
+  }
+
   _openSettings() {
     return openFullscreen(
         context: context,
@@ -117,6 +115,17 @@ class _WalletMainState extends State<WalletMain> {
           wallet: widget.wallet,
         ));
   }
+
+  Widget _buildError() => Padding(
+        padding: const EdgeInsets.only(top: 0, left: 20, right: 20, bottom: 20),
+        child: Text(
+          _error!,
+          style: const TextStyle(
+              color: Colors.redAccent,
+              fontSize: 14,
+              fontWeight: FontWeight.bold),
+        ),
+      );
 
   Widget _buildActionButtons() {
     return Row(
