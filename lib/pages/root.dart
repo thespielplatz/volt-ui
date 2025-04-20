@@ -54,7 +54,10 @@ class _RootPageState extends State<RootPage> {
                   });
                 },
                 itemBuilder: (context, index) {
-                  return WalletMain(wallet: wallets[index]);
+                  return WalletMain(
+                    wallet: wallets[index],
+                    isActive: _currentPage == index,
+                  );
                 },
               ),
               if (canSwipeLeft)

@@ -20,10 +20,12 @@ import 'package:collection/collection.dart';
 
 class WalletMain extends StatefulWidget {
   final Wallet wallet;
+  final bool isActive;
 
   const WalletMain({
     super.key,
     required this.wallet,
+    required this.isActive,
   });
 
   @override
@@ -42,7 +44,7 @@ class _WalletMainState extends State<WalletMain> {
   void initState() {
     super.initState();
     _repo = WalletRepository(widget.wallet);
-    _startAutorefreshWallet();
+    startAutorefreshWallet();
   }
 
   Future<void> _refreshWallet() async {
@@ -82,7 +84,7 @@ class _WalletMainState extends State<WalletMain> {
                 balanceSats: _balanceSats ?? 0,
                 isLoading: _isLoading,
                 onSettings: _openSettings,
-                onRefresh: _startAutorefreshWallet,
+                onRefresh: startAutorefreshWallet,
                 wallet: widget.wallet,
               )),
           if (_error != null) ...[
@@ -153,7 +155,7 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   void _onPayInvoiceSuccess(LndHubPaymentInvoiceDto dto) async {
-    await _startAutorefreshWallet();
+    await startAutorefreshWallet();
     // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
     showSuccess(
@@ -172,7 +174,7 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   void _onCreateInvoiceSuccess(String invoice) async {
-    await _startAutorefreshWallet();
+    await startAutorefreshWallet();
     LndHubTransaction? transaction =
         _repo.getTransactionByPaymentRequest(invoice);
 
@@ -191,7 +193,7 @@ class _WalletMainState extends State<WalletMain> {
   void _openTransactionPending(LndHubTransaction transaction,
       {bool replace = false}) {
     _transactionNotifier = ValueNotifier(transaction);
-    _startAutorefreshWallet();
+    startAutorefreshWallet();
 
     openFullscreen(
       replace: replace,
@@ -207,9 +209,20 @@ class _WalletMainState extends State<WalletMain> {
     );
   }
 
+  @override
+  void didUpdateWidget(covariant WalletMain oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.isActive && !oldWidget.isActive) {
+      startAutorefreshWallet();
+    } else if (!widget.isActive && oldWidget.isActive) {
+      stopAutorefreshWallet();
+    }
+  }
+
   Timer? _autoRefreshTimer;
 
-  _startAutorefreshWallet() async {
+  startAutorefreshWallet() async {
     _autoRefreshTimer?.cancel();
     await _refreshWallet();
 
@@ -232,13 +245,20 @@ class _WalletMainState extends State<WalletMain> {
     }
 
     // ignore: prefer_conditional_assignment
-    print('Starting autorefresh with $autoRefreshInterval');
+    print(
+        '${widget.wallet.label} Starting autorefresh with $autoRefreshInterval');
     _autoRefreshTimer = Timer(
       Duration(milliseconds: autoRefreshInterval),
       () {
-        _startAutorefreshWallet(); // restart the whole logic cleanly
+        startAutorefreshWallet(); // restart the whole logic cleanly
       },
     );
+  }
+
+  void stopAutorefreshWallet() {
+    print('${widget.wallet.label} Stop autorefresh');
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = null;
   }
 
   void _updateTransactions(List<LndHubTransaction> newTransactions) {
