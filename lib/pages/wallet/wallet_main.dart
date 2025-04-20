@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/layout/show_success.dart';
@@ -16,9 +13,8 @@ import 'package:volt_ui/pages/wallet/transaction_details/transaction_pending.dar
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
-import 'package:volt_ui/services/storage_provider.dart';
+import 'package:volt_ui/services/wallet/wallet_poller.dart';
 import 'package:volt_ui/ui/vui_button.dart';
-import 'package:collection/collection.dart';
 
 class WalletMain extends StatefulWidget {
   final Wallet wallet;
@@ -35,42 +31,45 @@ class WalletMain extends StatefulWidget {
 }
 
 class _WalletMainState extends State<WalletMain> {
-  late final WalletRepository _repo;
-  ValueNotifier<LndHubTransaction>? _transactionNotifier;
+  late final WalletRepository walletRepository;
+  late WalletPoller _walletPoller;
   bool _isLoading = true;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    _repo = WalletRepository(widget.wallet);
-    startAutorefreshWallet();
-  }
-
-  Future<void> _refreshWallet() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      final balance = await _repo.getBalance();
-      final transactions = await _repo.getTransactions();
-      _updateTransactions(transactions);
-      // ignore: use_build_context_synchronously
-      final storage = Provider.of<StorageProvider>(context, listen: false);
-      await storage.save();
-
-      setState(() {
-        widget.wallet.cachedBalanceSats = balance;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
+    walletRepository = WalletRepository(widget.wallet);
+    _walletPoller = WalletPoller(
+      context: context,
+      wallet: widget.wallet,
+      walletRepository: walletRepository,
+      onRefreshStarted: () => {
+        setState(() {
+          _isLoading = true;
+          _error = null;
+        })
+      },
+      onRefreshStopped: () async {
+        setState(() {
+          _isLoading = false;
+          _error = null;
+        });
+      },
+      onRefreshErrored: (error) => {
+        setState(() {
+          _isLoading = false;
+          _error = error;
+        })
+      },
+      onInvoicePaid: (String message) {
+        showSuccess(
+          context: context,
+          text: message,
+        );
+      },
+    );
+    _walletPoller.start();
   }
 
   @override
@@ -87,7 +86,7 @@ class _WalletMainState extends State<WalletMain> {
                 balanceSats: widget.wallet.cachedBalanceSats,
                 isLoading: _isLoading,
                 onSettings: _openSettings,
-                onRefresh: startAutorefreshWallet,
+                onRefresh: _walletPoller.start,
                 wallet: widget.wallet,
               )),
           if (_error != null) ...[
@@ -146,7 +145,8 @@ class _WalletMainState extends State<WalletMain> {
     return openFullscreen(
         context: context,
         title: 'Pay Invoice',
-        body: PayInvoice(onSuccess: _onPayInvoiceSuccess, repository: _repo));
+        body: PayInvoice(
+            onSuccess: _onPayInvoiceSuccess, repository: walletRepository));
   }
 
   void _openTransaction(LndHubTransaction transaction) {
@@ -162,7 +162,7 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   void _onPayInvoiceSuccess(LndHubPaymentInvoiceDto dto) async {
-    await startAutorefreshWallet();
+    await _walletPoller.start();
     // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
     showSuccess(
@@ -177,13 +177,13 @@ class _WalletMainState extends State<WalletMain> {
         context: context,
         title: 'Receive',
         body: CreateInvoice(
-            onSuccess: _onCreateInvoiceSuccess, repository: _repo));
+            onSuccess: _onCreateInvoiceSuccess, repository: walletRepository));
   }
 
   void _onCreateInvoiceSuccess(String invoice) async {
-    await startAutorefreshWallet();
+    await _walletPoller.start();
     LndHubTransaction? transaction =
-        _repo.getTransactionByPaymentRequest(invoice);
+        walletRepository.getTransactionByPaymentRequest(invoice);
 
     if (transaction != null) {
       _openTransactionPending(transaction, replace: true);
@@ -199,19 +199,20 @@ class _WalletMainState extends State<WalletMain> {
 
   void _openTransactionPending(LndHubTransaction transaction,
       {bool replace = false}) {
-    _transactionNotifier = ValueNotifier(transaction);
-    startAutorefreshWallet();
+    _walletPoller.transactionNotifier = ValueNotifier(transaction);
+    _walletPoller.start();
 
     openFullscreen(
       replace: replace,
       context: context,
       title: 'Lightning Transaction',
-      body: TransactionPending(transactionNotifier: _transactionNotifier!),
+      body: TransactionPending(
+          transactionNotifier: _walletPoller.transactionNotifier!),
       onClosed: () {
-        if (_transactionNotifier != null) {
-          _transactionNotifier!.dispose();
+        if (_walletPoller.transactionNotifier != null) {
+          _walletPoller.transactionNotifier!.dispose();
         }
-        _transactionNotifier = null;
+        _walletPoller.transactionNotifier = null;
       },
     );
   }
@@ -221,83 +222,9 @@ class _WalletMainState extends State<WalletMain> {
     super.didUpdateWidget(oldWidget);
 
     if (widget.isActive && !oldWidget.isActive) {
-      startAutorefreshWallet();
+      _walletPoller.start();
     } else if (!widget.isActive && oldWidget.isActive) {
-      stopAutorefreshWallet();
+      _walletPoller.stop();
     }
-  }
-
-  Timer? _autoRefreshTimer;
-
-  startAutorefreshWallet() async {
-    _autoRefreshTimer?.cancel();
-    await _refreshWallet();
-
-    int autoRefreshInterval = 2000;
-
-    // Check if a transaction is being watched
-    if (_transactionNotifier != null) {
-      autoRefreshInterval = 250;
-      final updatedTransaction = _repo.getTransactionByPaymentHash(
-        _transactionNotifier!.value.paymentHash,
-      );
-
-      if (updatedTransaction != null && updatedTransaction.isPaid) {
-        _transactionNotifier?.value = updatedTransaction;
-      }
-    }
-
-    if (_transactionsToWatch(itemsToWatch: 5) <= 0) {
-      autoRefreshInterval = 10 * 1000;
-    }
-
-    // ignore: prefer_conditional_assignment
-    _autoRefreshTimer = Timer(
-      Duration(milliseconds: autoRefreshInterval),
-      () {
-        startAutorefreshWallet(); // restart the whole logic cleanly
-      },
-    );
-  }
-
-  void stopAutorefreshWallet() {
-    _autoRefreshTimer?.cancel();
-    _autoRefreshTimer = null;
-  }
-
-  void _updateTransactions(List<LndHubTransaction> newTransactions) {
-    for (final newTx in newTransactions) {
-      final existingTx = _transactions
-          .firstWhereOrNull((t) => t.paymentHash == newTx.paymentHash);
-      if (existingTx == null) {
-        continue;
-      }
-
-      if (existingTx.transactionType == LndHubTransactionType.userInvoice &&
-          !existingTx.isPaid &&
-          newTx.isPaid) {
-        if (context.mounted) {
-          showSuccess(
-            context: context,
-            text:
-                'Payment received: ${newTx.value} sats with: ${newTx.description}',
-          );
-        }
-      }
-    }
-
-    _transactions.clear();
-    _transactions.addAll(newTransactions);
-  }
-
-  int _transactionsToWatch({int? itemsToWatch}) {
-    final transactionsToCheck =
-        itemsToWatch != null ? _transactions.take(itemsToWatch) : _transactions;
-
-    return transactionsToCheck
-        .where((tx) =>
-            !tx.isPaid &&
-            tx.transactionType == LndHubTransactionType.userInvoice)
-        .length;
   }
 }
