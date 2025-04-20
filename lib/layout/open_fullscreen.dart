@@ -27,7 +27,6 @@ MaterialPageRoute<dynamic> _createFullscreenWidget({
     fullscreenDialog: true,
     builder: (context) => PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
-        print('Back navigation invoked: $didPop');
         onClosed?.call();
       },
       child: Scaffold(

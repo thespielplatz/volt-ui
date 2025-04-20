@@ -205,10 +205,7 @@ class _WalletMainState extends State<WalletMain> {
     _transactionNotifier = ValueNotifier(transactionToWatch);
 
     Future<void> poll() async {
-      print('poll');
       if (_transactionNotifier == null) {
-        print(
-            '------------------------------> Polling transaction status...stopped');
         return;
       }
 
@@ -230,7 +227,6 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   void _stopTransactionStatusPolling() {
-    print('Stopping transaction status polling...');
     if (_transactionNotifier != null) {
       _transactionNotifier!.dispose();
     }
