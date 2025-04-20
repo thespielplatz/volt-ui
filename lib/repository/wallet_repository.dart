@@ -85,4 +85,10 @@ class WalletRepository {
       (transaction) => transaction.paymentRequest == paymentRequest,
     );
   }
+
+  LndHubTransaction? getTransactionByPaymentHash(String paymentHash) {
+    return allTransactions.firstWhere(
+      (transaction) => transaction.paymentHash == paymentHash,
+    );
+  }
 }

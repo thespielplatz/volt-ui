@@ -25,38 +25,45 @@ MaterialPageRoute<dynamic> _createFullscreenWidget({
 }) {
   return MaterialPageRoute(
     fullscreenDialog: true,
-    builder: (context) => Scaffold(
-      backgroundColor: AppColors.pageBackground,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: AppColors.headerBackground,
-        title: Row(children: [
-          Image.asset(
-            'design/logo/logo_orange.png',
-            width: 35,
-            height: 35,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            title,
-            style: const TextStyle(
-                color: AppColors.text, fontWeight: FontWeight.bold),
-          ),
-        ]),
-        iconTheme: const IconThemeData(color: AppColors.text),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              Navigator.of(context).pop();
-              onClosed?.call();
-            },
-          ),
-        ],
-      ),
-      body: DefaultTextStyle(
-        style: const TextStyle(color: AppColors.text),
-        child: body,
+    builder: (context) => PopScope(
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        print('Back navigation invoked: $didPop');
+        onClosed?.call();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.pageBackground,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: AppColors.headerBackground,
+          title: Row(children: [
+            Image.asset(
+              'design/logo/logo_orange.png',
+              width: 35,
+              height: 35,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.text,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ]),
+          iconTheme: const IconThemeData(color: AppColors.text),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+        body: DefaultTextStyle(
+          style: const TextStyle(color: AppColors.text),
+          child: body,
+        ),
       ),
     ),
   );

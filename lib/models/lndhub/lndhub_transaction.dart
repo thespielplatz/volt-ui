@@ -15,7 +15,8 @@ class LndHubTransaction {
   final DateTime? expireTime;
   final String? description;
   final String? paymentRequest;
-  final bool? isPaid;
+  final String paymentHash;
+  final bool? _isPaid;
 
   LndHubTransaction({
     required this.transactionType,
@@ -24,15 +25,24 @@ class LndHubTransaction {
     required this.fee,
     required this.value,
     required this.timestamp,
+    required this.paymentHash,
     this.expireTime,
-    this.isPaid,
+    bool? isPaid,
     this.paymentRequest,
     this.description,
-  });
+  }) : _isPaid = isPaid;
+
+  get isPaid {
+    return transactionType == LndHubTransactionType.payment ||
+        (transactionType == LndHubTransactionType.userInvoice &&
+            _isPaid != null &&
+            _isPaid == true);
+  }
 
   factory LndHubTransaction.fromPaymentJson(Map<String, dynamic> json) {
     return LndHubTransaction(
       transactionType: LndHubTransactionType.payment,
+      paymentHash: json['payment_hash'],
       feeMsat: json['fee_msat'] ?? 0,
       type: json['type'] ?? 'unknown',
       fee: (json['fee'] ?? 0).toDouble(),
@@ -46,6 +56,7 @@ class LndHubTransaction {
   factory LndHubTransaction.fromUserInvoiceJson(Map<String, dynamic> json) {
     return LndHubTransaction(
       transactionType: LndHubTransactionType.userInvoice,
+      paymentHash: json['payment_hash'],
       feeMsat: json['fee_msat'] ?? 0,
       type: json['type'] ?? 'user_invoice',
       fee: 0,

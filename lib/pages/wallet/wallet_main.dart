@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/layout/show_error.dart';
@@ -9,6 +11,7 @@ import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
 import 'package:volt_ui/pages/wallet/pay_invoice/pay_invoice.dart';
 import 'package:volt_ui/pages/wallet/settings/wallet_settings.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/transaction_details.dart';
+import 'package:volt_ui/pages/wallet/transaction_details/transaction_pending.dart';
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
@@ -30,6 +33,7 @@ class _WalletMainState extends State<WalletMain> {
   late final WalletRepository _repo;
   int? _balanceSats;
   final List<LndHubTransaction> _transactions = [];
+  ValueNotifier<LndHubTransaction>? _transactionNotifier;
   bool _isLoading = true;
   String? _error;
 
@@ -136,6 +140,18 @@ class _WalletMainState extends State<WalletMain> {
         body: PayInvoice(onSuccess: _onPayInvoiceSuccess, repository: _repo));
   }
 
+  void _openTransaction(LndHubTransaction transaction) {
+    if (transaction.isPaid) {
+      openFullscreen(
+        context: context,
+        title: 'Lightning Transaction',
+        body: TransactionDetails(transaction: transaction),
+      );
+    } else {
+      _openTransactionPending(transaction);
+    }
+  }
+
   void _onPayInvoiceSuccess(LndHubPaymentInvoiceDto dto) async {
     await _refreshWallet();
     // ignore: use_build_context_synchronously
@@ -161,7 +177,7 @@ class _WalletMainState extends State<WalletMain> {
         _repo.getTransactionByPaymentRequest(invoice);
 
     if (transaction != null) {
-      _openTransaction(transaction, replace: true);
+      _openTransactionPending(transaction, replace: true);
     } else {
       if (context.mounted) {
         // ignore: use_build_context_synchronously
@@ -172,11 +188,52 @@ class _WalletMainState extends State<WalletMain> {
     }
   }
 
-  void _openTransaction(LndHubTransaction transaction, {bool replace = false}) {
+  void _openTransactionPending(LndHubTransaction transaction,
+      {bool replace = false}) {
+    _startTransactionStatusPolling(transaction);
+
     openFullscreen(
-        replace: replace,
-        context: context,
-        title: 'Lightning Transaction',
-        body: TransactionDetails(transaction: transaction));
+      replace: replace,
+      context: context,
+      title: 'Lightning Transaction',
+      body: TransactionPending(transactionNotifier: _transactionNotifier!),
+      onClosed: _stopTransactionStatusPolling,
+    );
+  }
+
+  void _startTransactionStatusPolling(LndHubTransaction transactionToWatch) {
+    _transactionNotifier = ValueNotifier(transactionToWatch);
+
+    Future<void> poll() async {
+      print('poll');
+      if (_transactionNotifier == null) {
+        print(
+            '------------------------------> Polling transaction status...stopped');
+        return;
+      }
+
+      await _refreshWallet();
+
+      final updatedTransaction = _repo.getTransactionByPaymentHash(
+        transactionToWatch.paymentHash,
+      );
+
+      if (updatedTransaction!.isPaid) {
+        _transactionNotifier?.value = updatedTransaction;
+        _stopTransactionStatusPolling();
+        return;
+      }
+      Future.delayed(const Duration(milliseconds: 250), poll);
+    }
+
+    poll();
+  }
+
+  void _stopTransactionStatusPolling() {
+    print('Stopping transaction status polling...');
+    if (_transactionNotifier != null) {
+      _transactionNotifier!.dispose();
+    }
+    _transactionNotifier = null;
   }
 }

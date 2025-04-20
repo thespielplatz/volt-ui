@@ -78,7 +78,7 @@ class WalletTransactions extends StatelessWidget {
       amountColor = const Color(0xFFFDF4E9);
     } else if (transaction.transactionType ==
         LndHubTransactionType.userInvoice) {
-      if (transaction.isPaid ?? false) {
+      if (transaction.isPaid) {
         amountColor = Colors.lightGreen;
       } else {
         amountColor = Colors.grey;
