@@ -42,7 +42,7 @@ class _WalletMainState extends State<WalletMain> {
   void initState() {
     super.initState();
     _repo = WalletRepository(widget.wallet);
-    _refreshWallet();
+    _startAutorefreshWallet();
   }
 
   Future<void> _refreshWallet() async {
@@ -82,7 +82,7 @@ class _WalletMainState extends State<WalletMain> {
                 balanceSats: _balanceSats ?? 0,
                 isLoading: _isLoading,
                 onSettings: _openSettings,
-                onRefresh: _refreshWallet,
+                onRefresh: _startAutorefreshWallet,
                 wallet: widget.wallet,
               )),
           if (_error != null) ...[
@@ -153,7 +153,7 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   void _onPayInvoiceSuccess(LndHubPaymentInvoiceDto dto) async {
-    await _refreshWallet();
+    await _startAutorefreshWallet();
     // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
     showSuccess(
@@ -172,7 +172,7 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   void _onCreateInvoiceSuccess(String invoice) async {
-    await _refreshWallet();
+    await _startAutorefreshWallet();
     LndHubTransaction? transaction =
         _repo.getTransactionByPaymentRequest(invoice);
 
@@ -190,47 +190,55 @@ class _WalletMainState extends State<WalletMain> {
 
   void _openTransactionPending(LndHubTransaction transaction,
       {bool replace = false}) {
-    _startTransactionStatusPolling(transaction);
+    _transactionNotifier = ValueNotifier(transaction);
+    _startAutorefreshWallet();
 
     openFullscreen(
       replace: replace,
       context: context,
       title: 'Lightning Transaction',
       body: TransactionPending(transactionNotifier: _transactionNotifier!),
-      onClosed: _stopTransactionStatusPolling,
+      onClosed: () {
+        if (_transactionNotifier != null) {
+          _transactionNotifier!.dispose();
+        }
+        _transactionNotifier = null;
+      },
     );
   }
 
-  void _startTransactionStatusPolling(LndHubTransaction transactionToWatch) {
-    _transactionNotifier = ValueNotifier(transactionToWatch);
+  Timer? _autoRefreshTimer;
 
-    Future<void> poll() async {
-      if (_transactionNotifier == null) {
-        return;
-      }
+  _startAutorefreshWallet() async {
+    _autoRefreshTimer?.cancel();
+    await _refreshWallet();
 
-      await _refreshWallet();
+    int autoRefreshInterval = 2000;
 
+    // Check if a transaction is being watched
+    if (_transactionNotifier != null) {
+      autoRefreshInterval = 250;
       final updatedTransaction = _repo.getTransactionByPaymentHash(
-        transactionToWatch.paymentHash,
+        _transactionNotifier!.value.paymentHash,
       );
 
-      if (updatedTransaction!.isPaid) {
+      if (updatedTransaction != null && updatedTransaction.isPaid) {
         _transactionNotifier?.value = updatedTransaction;
-        _stopTransactionStatusPolling();
-        return;
       }
-      Future.delayed(const Duration(milliseconds: 250), poll);
     }
 
-    poll();
-  }
-
-  void _stopTransactionStatusPolling() {
-    if (_transactionNotifier != null) {
-      _transactionNotifier!.dispose();
+    if (_transactionsToWatch(itemsToWatch: 5) <= 0) {
+      autoRefreshInterval = 10 * 1000;
     }
-    _transactionNotifier = null;
+
+    // ignore: prefer_conditional_assignment
+    print('Starting autorefresh with $autoRefreshInterval');
+    _autoRefreshTimer = Timer(
+      Duration(milliseconds: autoRefreshInterval),
+      () {
+        _startAutorefreshWallet(); // restart the whole logic cleanly
+      },
+    );
   }
 
   void _updateTransactions(List<LndHubTransaction> newTransactions) {
@@ -256,5 +264,16 @@ class _WalletMainState extends State<WalletMain> {
 
     _transactions.clear();
     _transactions.addAll(newTransactions);
+  }
+
+  int _transactionsToWatch({int? itemsToWatch}) {
+    final transactionsToCheck =
+        itemsToWatch != null ? _transactions.take(itemsToWatch) : _transactions;
+
+    return transactionsToCheck
+        .where((tx) =>
+            !tx.isPaid &&
+            tx.transactionType == LndHubTransactionType.userInvoice)
+        .length;
   }
 }
