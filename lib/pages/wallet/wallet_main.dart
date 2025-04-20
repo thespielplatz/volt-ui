@@ -73,6 +73,13 @@ class _WalletMainState extends State<WalletMain> {
   }
 
   @override
+  void dispose() {
+    _walletPoller.stop();
+    _walletPoller.transactionNotifier?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(),
