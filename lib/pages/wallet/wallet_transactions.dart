@@ -42,13 +42,7 @@ class WalletTransactions extends StatelessWidget {
                       style: TextStyle(color: AppColors.text),
                     ),
                   )
-                : ListView.builder(
-                    itemCount: transactions.length,
-                    itemBuilder: (context, index) {
-                      return _buildTransactionTile(
-                          transaction: transactions[index]);
-                    },
-                  ),
+                : _buildTransactionList(),
           )),
         ],
       ),
@@ -60,6 +54,17 @@ class WalletTransactions extends StatelessWidget {
   }
 
   String _twoDigits(int n) => n < 10 ? '0$n' : '$n';
+
+  Widget _buildTransactionList() {
+    return Scrollbar(
+      child: ListView.builder(
+        itemCount: transactions.length,
+        itemBuilder: (context, index) {
+          return _buildTransactionTile(transaction: transactions[index]);
+        },
+      ),
+    );
+  }
 
   Widget _buildTransactionTile({
     required LndHubTransaction transaction,
