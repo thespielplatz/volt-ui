@@ -72,14 +72,16 @@ class WalletPoller {
     final balance = await walletRepository.getBalance();
     final transactions = await walletRepository.getTransactions();
     wallet.cachedBalanceSats = balance;
-    _updateTransactions(transactions);
+    _notifyAboutNewTransactions(transactions);
+    _transactions.clear();
+    _transactions.addAll(transactions);
     if (context.mounted) {
       final storage = Provider.of<StorageProvider>(context, listen: false);
       await storage.save();
     }
   }
 
-  void _updateTransactions(List<LndHubTransaction> newTransactions) {
+  void _notifyAboutNewTransactions(List<LndHubTransaction> newTransactions) {
     for (final newTx in newTransactions) {
       final existingTx = _transactions
           .firstWhereOrNull((t) => t.paymentHash == newTx.paymentHash);
@@ -95,9 +97,6 @@ class WalletPoller {
         );
       }
     }
-
-    _transactions.clear();
-    _transactions.addAll(newTransactions);
   }
 
   void stop() {
