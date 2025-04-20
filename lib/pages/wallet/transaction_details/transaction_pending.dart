@@ -47,16 +47,7 @@ class TransactionPending extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       const SizedBox(height: 16),
-      VUIButton(
-        icon: Icons.copy,
-        label: 'Copy to clipboard',
-        onPressed: () {
-          Clipboard.setData(ClipboardData(text: paymentRequest));
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Copied to clipboard')),
-          );
-        },
-      ),
+      _createCallToAction(),
     ];
   }
 
@@ -132,5 +123,31 @@ class TransactionPending extends StatelessWidget {
         );
       },
     );
+  }
+
+  _createCallToAction() {
+    return ValueListenableBuilder<LndHubTransaction>(
+        valueListenable: transactionNotifier,
+        builder: (context, tx, _) {
+          if (tx.isPaid) {
+            return VUIButton(
+              icon: Icons.close,
+              label: 'Close',
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            );
+          }
+          return VUIButton(
+            icon: Icons.copy,
+            label: 'Copy to clipboard',
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: tx.paymentRequest ?? ''));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Copied to clipboard')),
+              );
+            },
+          );
+        });
   }
 }
