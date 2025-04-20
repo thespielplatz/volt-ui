@@ -9,12 +9,12 @@ void openFullscreen({
   bool replace = false,
 }) {
   if (!replace) {
-    Navigator.of(context).push(
-        _createFullscreenWidget(context: context, title: title, body: body));
+    Navigator.of(context).push(_createFullscreenWidget(
+        context: context, title: title, body: body, onClosed: onClosed));
     return;
   }
-  Navigator.of(context).pushReplacement(
-      _createFullscreenWidget(context: context, title: title, body: body));
+  Navigator.of(context).pushReplacement(_createFullscreenWidget(
+      context: context, title: title, body: body, onClosed: onClosed));
 }
 
 MaterialPageRoute<dynamic> _createFullscreenWidget({
