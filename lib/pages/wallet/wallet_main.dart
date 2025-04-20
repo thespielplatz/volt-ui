@@ -16,6 +16,7 @@ import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
 import 'package:volt_ui/ui/vui_button.dart';
+import 'package:collection/collection.dart';
 
 class WalletMain extends StatefulWidget {
   final Wallet wallet;
@@ -53,8 +54,7 @@ class _WalletMainState extends State<WalletMain> {
     try {
       final balance = await _repo.getBalance();
       final transactions = await _repo.getTransactions();
-      _transactions.clear();
-      _transactions.addAll(transactions);
+      _updateTransactions(transactions);
 
       setState(() {
         _balanceSats = balance;
@@ -231,5 +231,30 @@ class _WalletMainState extends State<WalletMain> {
       _transactionNotifier!.dispose();
     }
     _transactionNotifier = null;
+  }
+
+  void _updateTransactions(List<LndHubTransaction> newTransactions) {
+    for (final newTx in newTransactions) {
+      final existingTx = _transactions
+          .firstWhereOrNull((t) => t.paymentHash == newTx.paymentHash);
+      if (existingTx == null) {
+        continue;
+      }
+
+      if (existingTx.transactionType == LndHubTransactionType.userInvoice &&
+          !existingTx.isPaid &&
+          newTx.isPaid) {
+        if (context.mounted) {
+          showSuccess(
+            context: context,
+            text:
+                'Payment received: ${newTx.value} sats with: ${newTx.description}',
+          );
+        }
+      }
+    }
+
+    _transactions.clear();
+    _transactions.addAll(newTransactions);
   }
 }
