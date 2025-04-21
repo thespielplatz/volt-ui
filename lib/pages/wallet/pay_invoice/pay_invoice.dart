@@ -54,7 +54,6 @@ class _PayInvoiceState extends State<PayInvoice> {
   }
 
   void _validateInput() async {
-    print('Validating input');
     final paymentRequest = _paymentRequestController.text;
     if (!validateBolt11(paymentRequest)) {
       setState(() {
