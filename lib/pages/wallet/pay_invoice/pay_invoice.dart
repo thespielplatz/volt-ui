@@ -11,9 +11,15 @@ import 'package:volt_ui/ui/vui_button.dart';
 class PayInvoice extends StatefulWidget {
   final void Function(LndHubPaymentInvoiceDto dto) onSuccess;
   final WalletRepository repository;
+  final String? openWithInvoice;
+  final LndHubDecodedInvoice? openWithDecodedInvoice;
 
   const PayInvoice(
-      {super.key, required this.onSuccess, required this.repository});
+      {super.key,
+      required this.onSuccess,
+      required this.repository,
+      this.openWithInvoice,
+      this.openWithDecodedInvoice});
 
   @override
   State<PayInvoice> createState() => _PayInvoiceState();
@@ -21,13 +27,19 @@ class PayInvoice extends StatefulWidget {
 
 class _PayInvoiceState extends State<PayInvoice> {
   final _paymentRequestController = TextEditingController();
-  LndHubDecodedInvoice? _invoice;
+  LndHubDecodedInvoice? _decodedInvoice;
   String? _paymentRequest;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    if (widget.openWithInvoice != null) {
+      _paymentRequestController.text = widget.openWithInvoice!;
+    }
+    if (widget.openWithDecodedInvoice != null) {
+      _decodedInvoice = widget.openWithDecodedInvoice;
+    }
     _paymentRequestController.addListener(_validateInput);
   }
 
@@ -42,27 +54,31 @@ class _PayInvoiceState extends State<PayInvoice> {
   }
 
   void _validateInput() async {
+    print('Validating input');
     final paymentRequest = _paymentRequestController.text;
     if (!validateBolt11(paymentRequest)) {
       setState(() {
-        _invoice = null;
+        _decodedInvoice = null;
       });
       return;
     }
+    setState(() {
+      _isLoading = true;
+    });
     try {
       LndHubDecodedInvoice invoice =
           await widget.repository.decodeInvoice(paymentRequest);
       setState(() {
-        _invoice = invoice;
+        _decodedInvoice = invoice;
         _paymentRequest = paymentRequest;
         _isLoading = false;
       });
     } catch (e) {
+      setState(() {
+        _decodedInvoice = null;
+      });
       // ignore: use_build_context_synchronously
       showError(context: context, text: 'Error decoding invoice: $e');
-      setState(() {
-        _invoice = null;
-      });
       return;
     } finally {
       setState(() {
@@ -108,9 +124,9 @@ class _PayInvoiceState extends State<PayInvoice> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _invoice == null
+              _decodedInvoice == null
                   ? ''
-                  : getFormattedSats(_invoice?.numSatoshis.toInt() ?? 0,
+                  : getFormattedSats(_decodedInvoice?.numSatoshis.toInt() ?? 0,
                       addPlusSign: false),
               style: const TextStyle(
                   color: Colors.white,
@@ -119,7 +135,7 @@ class _PayInvoiceState extends State<PayInvoice> {
             ),
             const SizedBox(height: 16),
             Text(
-              _invoice?.description ?? '',
+              _decodedInvoice?.description ?? '',
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 16),
@@ -139,7 +155,7 @@ class _PayInvoiceState extends State<PayInvoice> {
               icon: Icons.bolt,
               label: 'Pay Invoice',
               onPressed: _payInvoice,
-              isEnabled: _invoice != null,
+              isEnabled: _decodedInvoice != null,
               isLoading: _isLoading,
             ),
           ],

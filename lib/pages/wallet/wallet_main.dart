@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/layout/show_success.dart';
+import 'package:volt_ui/models/lndhub/lndhub_decoded_invoice.dart';
 import 'package:volt_ui/models/lndhub/lndhub_payment_invoice_dto.dart';
 import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
 import 'package:volt_ui/pages/wallet/pay_invoice/pay_invoice.dart';
+import 'package:volt_ui/pages/wallet/scanner/qr_scanner_page.dart';
 import 'package:volt_ui/pages/wallet/settings/wallet_settings.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/transaction_details.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/transaction_pending.dart';
@@ -147,22 +149,52 @@ class _WalletMainState extends State<WalletMain> {
             }),
         VUIButton(
             isFullWidth: false,
+            icon: Icons.qr_code_scanner,
+            label: 'Scan',
+            onPressed: () {
+              openScanner(context);
+            }),
+        VUIButton(
+            isFullWidth: false,
             icon: Icons.download,
             label: 'Receive',
             onPressed: () {
               openCreateInvoice(context);
             }),
-        /* VUIButton(icon: Icons.qr_code_scanner, label: 'Scan', onPressed: () {}), */
       ],
     );
   }
 
-  void openPayInvoice(BuildContext context) {
+  void openScanner(BuildContext context) {
     return openFullscreen(
+        context: context,
+        title: 'Scan QR Code',
+        body: QRScannerPage(
+          walletRepository: walletRepository,
+          onInvoiceFound: (
+              {String? invoice, LndHubDecodedInvoice? decodedInvoice}) {
+            openPayInvoice(context,
+                replace: true,
+                invoice: invoice,
+                decodedInvoice: decodedInvoice);
+          },
+        ));
+  }
+
+  void openPayInvoice(BuildContext context,
+      {bool replace = false,
+      String? invoice,
+      LndHubDecodedInvoice? decodedInvoice}) {
+    return openFullscreen(
+        replace: replace,
         context: context,
         title: 'Pay Invoice',
         body: PayInvoice(
-            onSuccess: _onPayInvoiceSuccess, repository: walletRepository));
+          onSuccess: _onPayInvoiceSuccess,
+          repository: walletRepository,
+          openWithInvoice: invoice,
+          openWithDecodedInvoice: decodedInvoice,
+        ));
   }
 
   void _openTransaction(LndHubTransaction transaction) {

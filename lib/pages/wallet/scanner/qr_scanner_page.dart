@@ -1,0 +1,105 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:volt_ui/layout/show_error.dart';
+import 'package:volt_ui/models/lndhub/lndhub_decoded_invoice.dart';
+import 'package:volt_ui/repository/wallet_repository.dart';
+import 'package:volt_ui/services/lightning/validate_bolt11.dart';
+
+/// Implementation of Mobile Scanner example with simple configuration
+class QRScannerPage extends StatefulWidget {
+  final WalletRepository walletRepository;
+  final void Function({String invoice, LndHubDecodedInvoice decodedInvoice})
+      onInvoiceFound;
+
+  const QRScannerPage(
+      {super.key,
+      required this.walletRepository,
+      required this.onInvoiceFound});
+
+  @override
+  State<QRScannerPage> createState() => _QRScannerPageState();
+}
+
+class _QRScannerPageState extends State<QRScannerPage>
+    with WidgetsBindingObserver {
+  final MobileScannerController controller = MobileScannerController(
+    autoStart: false,
+    detectionSpeed: DetectionSpeed.normal,
+    facing: CameraFacing.back,
+    torchEnabled: false,
+    returnImage: false,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // Start the scanner
+    unawaited(controller.start());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!controller.value.hasCameraPermission) {
+      showError(
+          context: context,
+          text: 'Camera permission are missing to use the QR Code Scanner');
+      return;
+    }
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        unawaited(controller.start());
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+        unawaited(controller.stop());
+        break;
+      case AppLifecycleState.detached:
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(controller.dispose());
+    super.dispose();
+  }
+
+  void _handleBarcode(BarcodeCapture capture) async {
+    var code = capture.barcodes.firstOrNull?.rawValue;
+    if (code == null) {
+      return;
+    }
+
+    if (validateBolt11(code)) {
+      try {
+        LndHubDecodedInvoice decodedInvoice =
+            await widget.walletRepository.decodeInvoice(code);
+        widget.onInvoiceFound(
+          invoice: code,
+          decodedInvoice: decodedInvoice,
+        );
+        return;
+      } catch (e) {
+        showError(
+          context: context,
+          text: 'Error processing invoice: $e',
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MobileScanner(
+      onDetect: _handleBarcode,
+      controller: controller,
+    );
+  }
+}
