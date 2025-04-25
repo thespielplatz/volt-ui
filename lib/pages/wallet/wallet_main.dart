@@ -15,6 +15,7 @@ import 'package:volt_ui/pages/wallet/transaction_details/transaction_pending.dar
 import 'package:volt_ui/pages/wallet/wallet_overview.dart';
 import 'package:volt_ui/pages/wallet/wallet_transactions.dart';
 import 'package:volt_ui/repository/wallet_repository.dart';
+import 'package:volt_ui/services/code_identifier.dart';
 import 'package:volt_ui/services/wallet/wallet_poller.dart';
 import 'package:volt_ui/ui/vui_button.dart';
 
@@ -35,6 +36,7 @@ class WalletMain extends StatefulWidget {
 class _WalletMainState extends State<WalletMain> {
   late final WalletRepository walletRepository;
   late WalletPoller _walletPoller;
+  late final CodeIdentifier _codeIdentifier;
   bool _isLoading = true;
   String? _error;
 
@@ -42,6 +44,15 @@ class _WalletMainState extends State<WalletMain> {
   void initState() {
     super.initState();
     walletRepository = WalletRepository(widget.wallet);
+    _codeIdentifier = CodeIdentifier(
+      context: context,
+      walletRepository: walletRepository,
+      onInvoiceFound: (
+          {String? invoice, LndHubDecodedInvoice? decodedInvoice}) {
+        openPayInvoice(context,
+            replace: true, invoice: invoice, decodedInvoice: decodedInvoice);
+      },
+    );
     _walletPoller = WalletPoller(
       context: context,
       wallet: widget.wallet,
@@ -171,12 +182,8 @@ class _WalletMainState extends State<WalletMain> {
         title: 'Scan QR Code',
         body: QRScannerPage(
           walletRepository: walletRepository,
-          onInvoiceFound: (
-              {String? invoice, LndHubDecodedInvoice? decodedInvoice}) {
-            openPayInvoice(context,
-                replace: true,
-                invoice: invoice,
-                decodedInvoice: decodedInvoice);
+          onDetect: (String code) async {
+            await _codeIdentifier.identifyCode(code);
           },
         ));
   }
