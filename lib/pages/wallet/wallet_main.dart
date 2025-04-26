@@ -1,3 +1,4 @@
+import 'package:dart_lnurl/dart_lnurl.dart';
 import 'package:flutter/material.dart';
 import 'package:volt_ui/layout/open_fullscreen.dart';
 import 'package:volt_ui/layout/show_error.dart';
@@ -8,6 +9,7 @@ import 'package:volt_ui/models/lndhub/lndhub_transaction.dart';
 import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
 import 'package:volt_ui/pages/wallet/pay_invoice/pay_invoice.dart';
+import 'package:volt_ui/pages/wallet/pay_invoice/pay_lnurlp.dart';
 import 'package:volt_ui/pages/wallet/scanner/qr_scanner_page.dart';
 import 'package:volt_ui/pages/wallet/settings/wallet_settings.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/transaction_details.dart';
@@ -52,6 +54,7 @@ class _WalletMainState extends State<WalletMain> {
         openPayInvoice(context,
             replace: true, invoice: invoice, decodedInvoice: decodedInvoice);
       },
+      onLNURLpFound: onLNURLpFound,
     );
     _walletPoller = WalletPoller(
       context: context,
@@ -269,6 +272,19 @@ class _WalletMainState extends State<WalletMain> {
         }
         _walletPoller.transactionNotifier = null;
       },
+    );
+  }
+
+  void onLNURLpFound(LNURLPayParams payParams) {
+    openFullscreen(
+      replace: true,
+      context: context,
+      title: 'Pay LNURLp',
+      body: PayLnurlp(
+        repository: walletRepository,
+        lnurlPayParams: payParams,
+        onSuccess: _onPayInvoiceSuccess,
+      ),
     );
   }
 

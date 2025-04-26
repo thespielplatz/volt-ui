@@ -10,11 +10,13 @@ class CodeIdentifier {
   final WalletRepository walletRepository;
   final void Function({String invoice, LndHubDecodedInvoice decodedInvoice})
       onInvoiceFound;
+  final void Function(LNURLPayParams payParams) onLNURLpFound;
 
   CodeIdentifier({
     required this.context,
     required this.walletRepository,
     required this.onInvoiceFound,
+    required this.onLNURLpFound,
   });
 
   identifyCode(String code) async {
@@ -44,11 +46,7 @@ class CodeIdentifier {
         return;
       }
       if (result.payParams != null) {
-        showError(
-          // ignore: use_build_context_synchronously
-          context: context,
-          text: 'LNURLp not implemented yet',
-        );
+        onLNURLpFound(result.payParams!);
         return;
       }
       if (result.authParams != null) {
