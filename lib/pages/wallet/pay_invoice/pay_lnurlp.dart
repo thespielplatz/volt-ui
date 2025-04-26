@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:dart_lnurl/dart_lnurl.dart';
+import 'package:tsp_dart_lnurl/dart_lnurl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:volt_ui/layout/sats_input_formatter.dart';
@@ -34,12 +34,14 @@ class _PayLnurlpState extends State<PayLnurlp> {
   bool _isLoading = false;
   late int minSats;
   late int maxSats;
+  late int commentsLength;
 
   @override
   void initState() {
     super.initState();
     minSats = (widget.lnurlPayParams.minSendable / 1000).floor();
     maxSats = (widget.lnurlPayParams.maxSendable / 1000).floor();
+    commentsLength = widget.lnurlPayParams.commentAllowed ?? 0;
     _satsController.addListener(_validateAmount);
     if (minSats == maxSats) {
       _satsController.text = minSats.toString();
@@ -72,15 +74,14 @@ class _PayLnurlpState extends State<PayLnurlp> {
     final sats = _getSats();
     final description = _descController.text.trim();
     try {
-      LnurlpCallbackResponseDto response =
-          await _callLNURLPCallback(sats * 1000);
+      LnurlpCallbackResponseDto response = await _callLNURLPCallback(
+          sats * 1000, commentsLength > 0 ? description : null);
       LndHubPaymentInvoiceDto invoice =
           await widget.repository.payInvoice(response.pr);
       widget.onSuccess(invoice);
     } catch (error) {
       // ignore: use_build_context_synchronously
       showError(context: context, text: 'Error creating invoice: $error');
-    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -108,18 +109,7 @@ class _PayLnurlpState extends State<PayLnurlp> {
             const SizedBox(height: 16),
             _createSatsRow(),
             _createMinMaxSatsRow(),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _descController,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Description',
-                labelStyle: const TextStyle(color: Colors.white70),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                focusedBorder: AppColors.inputFocusedBorder,
-              ),
-            ),
+            if (commentsLength > 0) _createCommentsRow(),
             const SizedBox(height: 24),
             VUIButton(
               icon: Icons.bolt,
@@ -217,10 +207,33 @@ class _PayLnurlpState extends State<PayLnurlp> {
     return null;
   }
 
-  Future<LnurlpCallbackResponseDto> _callLNURLPCallback(int millisats) async {
+  _createCommentsRow() {
+    return Column(children: [
+      const SizedBox(height: 16),
+      TextField(
+        controller: _descController,
+        maxLength: commentsLength,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: 'Comment',
+          labelStyle: const TextStyle(color: Colors.white70),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          focusedBorder: AppColors.inputFocusedBorder,
+        ),
+      ),
+      Text(
+        '$commentsLength characters allowed',
+        style: const TextStyle(color: Colors.white54),
+      ),
+    ]);
+  }
+
+  Future<LnurlpCallbackResponseDto> _callLNURLPCallback(
+      int millisats, String? comment) async {
     String callback = widget.lnurlPayParams.callback;
     final separator = callback.contains('?') ? '&' : '?';
-    final url = '$callback${separator}amount=$millisats';
+    final commentParameter = comment != null ? '&comment=$comment' : '';
+    final url = '$callback${separator}amount=$millisats$commentParameter';
 
     final response = await http.get(Uri.parse(url));
 

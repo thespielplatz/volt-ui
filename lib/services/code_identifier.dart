@@ -1,4 +1,4 @@
-import 'package:dart_lnurl/dart_lnurl.dart';
+import 'package:tsp_dart_lnurl/dart_lnurl.dart';
 import 'package:flutter/material.dart';
 import 'package:volt_ui/layout/show_error.dart';
 import 'package:volt_ui/models/lndhub/lndhub_decoded_invoice.dart';

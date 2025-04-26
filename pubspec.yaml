@@ -11,13 +11,15 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   flutter_secure_storage: ^9.0.0
-  http: ^0.13.6
+  http: ^1.3.0
   provider: ^6.1.4
   nanoid: ^1.0.0
   qr_flutter: ^4.1.0  # or latest
   collection: ^1.19.1 
   mobile_scanner: ^6.0.9
-  dart_lnurl: ^0.2.1
+  tsp_dart_lnurl:
+    path: ../../flutter/tsp_dart_lnurl
+
 
   # flutter_svg: ^1.1.6
 dev_dependencies:
