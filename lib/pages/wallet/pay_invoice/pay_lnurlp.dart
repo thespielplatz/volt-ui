@@ -203,7 +203,9 @@ class _PayLnurlpState extends State<PayLnurlp> {
           return item[1] as String;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      return null;
+    }
     return null;
   }
 
