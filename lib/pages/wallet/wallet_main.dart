@@ -169,7 +169,6 @@ class _WalletMainState extends State<WalletMain> {
         context: context,
         title: 'Scan QR Code',
         body: QRScannerPage(
-          walletRepository: walletRepository,
           onDetect: (String code) async {
             await _codeIdentifier.identifyCode(code);
           },

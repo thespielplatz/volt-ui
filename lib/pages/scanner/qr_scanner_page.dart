@@ -3,15 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:volt_ui/layout/show_error.dart';
-import 'package:volt_ui/repository/wallet_repository.dart';
 import 'package:volt_ui/ui/app_colors.dart';
 
 class QRScannerPage extends StatefulWidget {
-  final WalletRepository walletRepository;
   final Future<void> Function(String code) onDetect;
 
-  const QRScannerPage(
-      {super.key, required this.walletRepository, required this.onDetect});
+  const QRScannerPage({super.key, required this.onDetect});
 
   @override
   State<QRScannerPage> createState() => _QRScannerPageState();
