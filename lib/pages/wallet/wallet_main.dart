@@ -10,7 +10,7 @@ import 'package:volt_ui/models/wallets/wallet.dart';
 import 'package:volt_ui/pages/wallet/create_invoice/create_invoice.dart';
 import 'package:volt_ui/pages/wallet/pay_invoice/pay_invoice.dart';
 import 'package:volt_ui/pages/wallet/pay_invoice/pay_lnurlp.dart';
-import 'package:volt_ui/pages/wallet/scanner/qr_scanner_page.dart';
+import 'package:volt_ui/pages/scanner/qr_scanner_page.dart';
 import 'package:volt_ui/pages/wallet/settings/wallet_settings.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/transaction_details.dart';
 import 'package:volt_ui/pages/wallet/transaction_details/transaction_pending.dart';
