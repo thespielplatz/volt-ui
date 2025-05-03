@@ -40,7 +40,6 @@ class _WalletMainState extends State<WalletMain> {
   late WalletPoller _walletPoller;
   late final CodeIdentifier _codeIdentifier;
   bool _isLoading = true;
-  String? _error;
 
   @override
   void initState() {
@@ -63,19 +62,17 @@ class _WalletMainState extends State<WalletMain> {
       onRefreshStarted: () => {
         setState(() {
           _isLoading = true;
-          _error = null;
         })
       },
       onRefreshStopped: () async {
         setState(() {
           _isLoading = false;
-          _error = null;
         });
       },
       onRefreshErrored: (error) => {
         setState(() {
           _isLoading = false;
-          _error = error;
+          showError(context: context, text: error);
         })
       },
       onInvoicePaid: (String message) {
@@ -103,7 +100,6 @@ class _WalletMainState extends State<WalletMain> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildOverview(),
-          if (_error != null) _buildError(),
           _buildActionButtons(),
           const SizedBox(height: 20),
           WalletTransactions(
@@ -138,17 +134,6 @@ class _WalletMainState extends State<WalletMain> {
           wallet: widget.wallet,
         ));
   }
-
-  Widget _buildError() => Padding(
-        padding: const EdgeInsets.only(top: 0, left: 20, right: 20, bottom: 20),
-        child: Text(
-          _error!,
-          style: const TextStyle(
-              color: Colors.redAccent,
-              fontSize: 14,
-              fontWeight: FontWeight.bold),
-        ),
-      );
 
   Widget _buildActionButtons() {
     return Row(
