@@ -17,6 +17,7 @@ class QRScannerPage extends StatefulWidget {
 class _QRScannerPageState extends State<QRScannerPage>
     with WidgetsBindingObserver {
   bool _isLoading = false;
+  bool _skipDetecting = false;
 
   final MobileScannerController controller = MobileScannerController(
     autoStart: false,
@@ -72,12 +73,18 @@ class _QRScannerPageState extends State<QRScannerPage>
       return;
     }
 
+    if (_skipDetecting) {
+      return;
+    }
+    _skipDetecting = true;
+
     setState(() {
       _isLoading = true;
     });
     await widget.onDetect(code);
     setState(() {
       _isLoading = false;
+      _skipDetecting = false;
     });
   }
 

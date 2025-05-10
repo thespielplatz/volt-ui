@@ -15,14 +15,18 @@ dependencies:
   provider: ^6.1.4
   nanoid: ^1.0.0
   qr_flutter: ^4.1.0  # or latest
-  collection: ^1.19.1 
+#  collection: ^1.19.1 
+  collection: ^1.18.0 
   mobile_scanner: ^6.0.9
   tsp_dart_lnurl:
     path: ../../flutter/tsp_dart_lnurl
 
-
-  # flutter_svg: ^1.1.6
+# flutter_svg: ^1.1.6
 dev_dependencies:
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.3
